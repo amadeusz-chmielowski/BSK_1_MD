@@ -64,6 +64,8 @@
             this.startServerWorker = new System.ComponentModel.BackgroundWorker();
             this.copyConsoleWorker = new System.ComponentModel.BackgroundWorker();
             this.messageReciverWorker = new System.ComponentModel.BackgroundWorker();
+            this.pathSelectorButton = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.savePathLabel = new System.Windows.Forms.TextBox();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -364,6 +366,8 @@
             // 
             // settingsServerTabPage
             // 
+            this.settingsServerTabPage.Controls.Add(this.savePathLabel);
+            this.settingsServerTabPage.Controls.Add(this.pathSelectorButton);
             this.settingsServerTabPage.Controls.Add(this.serverPortBox);
             this.settingsServerTabPage.Controls.Add(this.serverPortLabel);
             this.settingsServerTabPage.Location = new System.Drawing.Point(4, 24);
@@ -473,6 +477,32 @@
             // 
             this.messageReciverWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.messageReciverWorker_DoWork);
             // 
+            // pathSelectorButton
+            // 
+            this.pathSelectorButton.Depth = 0;
+            this.pathSelectorButton.Font = new System.Drawing.Font("Consolas", 12F);
+            this.pathSelectorButton.Location = new System.Drawing.Point(25, 75);
+            this.pathSelectorButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.pathSelectorButton.Name = "pathSelectorButton";
+            this.pathSelectorButton.Primary = true;
+            this.pathSelectorButton.Size = new System.Drawing.Size(88, 94);
+            this.pathSelectorButton.TabIndex = 7;
+            this.pathSelectorButton.Text = "Path";
+            this.pathSelectorButton.UseVisualStyleBackColor = true;
+            this.pathSelectorButton.Click += new System.EventHandler(this.pathSelectorButton_Click);
+            // 
+            // savePathLabel
+            // 
+            this.savePathLabel.Font = new System.Drawing.Font("Consolas", 10F);
+            this.savePathLabel.Location = new System.Drawing.Point(215, 22);
+            this.savePathLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.savePathLabel.MaxLength = 50;
+            this.savePathLabel.Multiline = true;
+            this.savePathLabel.Name = "savePathLabel";
+            this.savePathLabel.ReadOnly = true;
+            this.savePathLabel.Size = new System.Drawing.Size(465, 147);
+            this.savePathLabel.TabIndex = 8;
+            // 
             // BSK
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -541,6 +571,8 @@
         private System.ComponentModel.BackgroundWorker startServerWorker;
         private System.ComponentModel.BackgroundWorker copyConsoleWorker;
         private System.ComponentModel.BackgroundWorker messageReciverWorker;
+        private MaterialSkin.Controls.MaterialRaisedButton pathSelectorButton;
+        private System.Windows.Forms.TextBox savePathLabel;
     }
 }
 

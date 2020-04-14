@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Net;
 
 namespace BSK_1_MD
 {
@@ -19,6 +20,8 @@ namespace BSK_1_MD
         private Logger logger;
         private TcpClients tcpClient;
         private TcpServer tcpServer;
+        private IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+        private IPAddress ipAddress = null;
         public BSK()
         {
             InitializeComponent();
@@ -27,6 +30,9 @@ namespace BSK_1_MD
             logger = new Logger();
             loggerWorker.RunWorkerAsync();
             copyConsoleWorker.RunWorkerAsync();
+            ipAddress = ipHostInfo.AddressList[1];
+            savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
+                "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -196,6 +202,23 @@ namespace BSK_1_MD
         {
             consoleOutputTextBox.Focus();
             consoleOutputTextBox.Select(consoleOutputTextBox.Text.Length, 0);
+        }
+
+        private void pathSelectorButton_Click(object sender, EventArgs e)
+        {
+            using (var fldrDlg = new FolderBrowserDialog())
+            {
+                //fldrDlg.Filter = "Png Files (*.png)|*.png";
+                //fldrDlg.Filter = "Excel Files (*.xls, *.xlsx)|*.xls;*.xlsx|CSV Files (*.csv)|*.csv"
+
+                if (fldrDlg.ShowDialog() == DialogResult.OK)
+                {
+                    //fldrDlg.SelectedPath -- your result
+                    Console.WriteLine(fldrDlg.SelectedPath);
+                    savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
+                "Path to save files: " + fldrDlg.SelectedPath;
+                }
+            }
         }
     }
 }
