@@ -5,174 +5,86 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
+using System.Threading;
 
 namespace BSK_1_MD
 {
     class TcpClients
     {
-        #region Private declarations
+        private string message = "[Client] {0}";
         private string ip;
         private Int32 port;
         private Logger logger;
-        NetworkStream ns;
-        public bool ConnectedToServer { get; set; } = false;
-        TcpClient tcpClient;
-        #endregion
-        #region Private methods
-        #endregion
-        #region Public declarations
-        #endregion
-        #region Public methods
+
+        private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+        private Socket socket;
+        private EndPoint ipEndPoint;
+
         public TcpClients(string ip, Int32 port, ref Logger logger)
         {
             this.ip = ip;
             this.port = port;
             this.logger = logger;
+
+            if (socket == null)
+            {
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                logger.addToLogger(string.Format(message, "Creating client socket"));
+            }
+            if (ipEndPoint == null)
+            {
+                ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            }
         }
 
         public void Connect()
         {
-            try
+            manualResetEvent.Reset();
+            logger.addToLogger(string.Format(message, "Establishing connection to " + ip));
+            IAsyncResult result = socket.BeginConnect(ipEndPoint, new AsyncCallback(ConnectionAquired), socket);
+            manualResetEvent.WaitOne(10000);
+            if (socket.Connected)
             {
-                logger.addToLogger("[Client] Trying to connect to host: " + ip + " at port: " + port);
-                if (tcpClient == null)
-                {
-                    tcpClient = new TcpClient(ip, port);
-                    bool status = tcpClient.Connected;
-                    ConnectedToServer = status;
-                    logger.addToLogger("[Client] Connection status: " + ConnectedToServer);
-                    if (ConnectedToServer)
-                    {
-                        ns = tcpClient.GetStream();
-                    }
-                }
+                logger.addToLogger(string.Format(message, "Connection established"));
             }
-            catch (Exception e)
-            {
-                logger.addToLogger("[Client] " + e.ToString());
-            }
-        }
-        public void SendMessage(string message)
-        {
-            try
-            {
-                //var client = new TcpClient(hostName, portNum);
-                if (tcpClient != null && ns != null)
-                {
-                    
-                    try
-                    {
-                           byte[] message_ = Encoding.ASCII.GetBytes(message);
-                           ns.Write(message_, 0, message_.Length);
-                    }
-                    catch (Exception e)
-                    {
-                        logger.addToLogger("[Client] " + e.ToString());
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                logger.addToLogger("[Client] " + e.ToString());
-            }
-        }
-        public void CloseClient()
-        {
-            if (tcpClient != null)
-            {
-                if(ns!= null)
-                {
-                    ns.Close();
-                }
-                tcpClient.Close();
-            }
-        }
-        #endregion
-
-    }
-    class TcpServer
-    {
-        #region Private declarations
-        private Int32 listeningPort = 810;
-        private Logger logger;
-        private TcpClient tcpClient;
-        public bool StopServer { get; set; } = false;
-        public bool ServerStarted { get; set; } = false;
-        #endregion
-        #region Private methods
-        #endregion
-        #region Public declarations
-        #endregion
-        #region Public methods
-        public TcpServer(Int32 port, ref Logger logger)
-        {
-            this.listeningPort = port;
-            this.logger = logger;
-        }
-
-        public void StartServer()
-        {
-            try
-            {
-                TcpListener listener = new TcpListener(IPAddress.Any, listeningPort);
-                listener.Start();
-                ServerStarted = true;
-                while (!StopServer)
-                {
-                    logger.addToLogger("[Server] Waiting for connection...");
-                    tcpClient = listener.AcceptTcpClient();
-                    if (tcpClient.Connected)
-                    {
-                        logger.addToLogger("[Server] Connected");
-                        StopServer = true;
-                    }
-                }
-                if (StopServer)
-                {
-                    listener.Stop();
-                }
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-        public void ReciveMessage()
-        {
-            if(tcpClient != null)
+            else
             {
                 try
                 {
-                    if (tcpClient.Connected)
-                    {
-                        NetworkStream ns = tcpClient.GetStream();
-
-                        byte[] bytes = new byte[1024];
-                        int bytesRead = ns.Read(bytes, 0, bytes.Length);
-                        if(bytesRead != 0)
-                        {
-                            logger.addToLogger("[Server] Message: " + Encoding.ASCII.GetString(bytes, 0, bytesRead));
-                        }
-                    }
+                    socket.EndConnect(result);
                 }
-                catch (Exception e)
+                catch
                 {
-                    logger.addToLogger("[Server] " + e.ToString());
+                    logger.addToLogger(string.Format(message, "Connection timeout"));
+                }
+            } 
+        }
+
+        public void Updatevariables(string ip, Int32 port)
+        {
+            this.ip = ip;
+            this.port = port;
+            ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+        }
+
+        private void ConnectionAquired(IAsyncResult ar)
+        {
+            try
+            {
+                socket = (Socket)ar.AsyncState;
+                if (socket.Connected)
+                {
+                    manualResetEvent.Set();
+                    socket.EndConnect(ar);
                 }
             }
-        }
-        public void SendFile()
-        {
-
-        }
-        public void CloseClient()
-        {
-            if (tcpClient != null)
+            catch (Exception e)
             {
-                tcpClient.Close();
+                logger.addToLogger(string.Format(message, e.ToString()));
             }
         }
-        #endregion
-
+    }
+    class TcpServer
+    {
     }
 }

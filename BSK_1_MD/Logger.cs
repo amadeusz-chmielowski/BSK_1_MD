@@ -19,7 +19,7 @@ namespace BSK_1_MD
         public void addToLogger(string text)
         {
             mutex.WaitOne();
-            loggerList.Add(DateTime.Now.ToString() + " " + text);
+            loggerList.Add("[" + DateTime.Now.ToString() + "]" + " " + text);
             // Release the Mutex.
             mutex.ReleaseMutex();
         }
