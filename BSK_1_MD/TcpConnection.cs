@@ -122,8 +122,7 @@ namespace BSK_1_MD
 
             manualResetEvent.Reset();
             logger.addToLogger(string.Format(message, "Waiting for connection..."));
-            int reciveDataSize = 10;
-            var result = listener.BeginAccept(null, reciveDataSize, new AsyncCallback(AcceptCallback), listener);
+            var result = listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
             manualResetEvent.WaitOne();
             logger.addToLogger(string.Format(message, "Connected"));
 
@@ -131,16 +130,12 @@ namespace BSK_1_MD
 
         private void AcceptCallback(IAsyncResult ar)
         {
-            listener = (Socket)ar.AsyncState;
-            byte[] Buffer;
-            int bytesTransferred;
-            Socket handler = listener.EndAccept(out Buffer, out bytesTransferred, ar);
-            string stringTransferred = Encoding.ASCII.GetString(Buffer, 0, bytesTransferred);
-
-            Console.WriteLine(stringTransferred);
-            Console.WriteLine("Size of data transferred is {0}", bytesTransferred);
-
-            // Create the state object for the asynchronous receive.
+            var listener_ = (Socket)ar.AsyncState;
+            listener = listener_.EndAccept(ar);
+            if (listener.Connected)
+            {
+                manualResetEvent.Set();
+            }
         }
     }
 }
