@@ -133,20 +133,20 @@ namespace BSK_1_MD
 
         private void serverStartButton_Click(object sender, EventArgs e)
         {
-            //Int32 port = Convert.ToInt32(serverPortBox.Text);
-            //tcpServer = new TcpServer(port, ref logger);
-            //serverStartButton.Enabled = false;
-            //startServerWorker.RunWorkerAsync(argument: tcpServer);
+            Int32 port = Convert.ToInt32(serverPortBox.Text);
+            tcpServer = new TcpServer(port, ref logger);
+            serverStartButton.Enabled = false;
+            startServerWorker.RunWorkerAsync(argument: tcpServer);
             //messageReciverWorker.RunWorkerAsync();
         }
 
         private void startServerWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //var server = (TcpServer)e.Argument;
-            //if (!server.ServerStarted)
-            //{
-            //    server.StartServer();
-            //}
+            var server = (TcpServer)e.Argument;
+            if (!server.ServerStarted)
+            {
+                server.StartServer();
+            }
         }
 
         delegate void StatusTextCallback();
