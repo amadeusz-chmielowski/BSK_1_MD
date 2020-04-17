@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace BSK_1_MD
 {
+
     class Logger
     {
         private List<string> loggerList;

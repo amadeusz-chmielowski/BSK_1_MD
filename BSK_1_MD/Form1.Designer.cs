@@ -489,6 +489,9 @@
             this.materialTabSelector1.TabIndex = 1;
             this.materialTabSelector1.Text = "materialTabSelector1";
             // 
+            // selectFileDialog
+            // 
+            // 
             // loggerWorker
             // 
             this.loggerWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.loggerWorker_DoWork);

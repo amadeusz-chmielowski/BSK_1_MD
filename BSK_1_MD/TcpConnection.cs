@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
+using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
@@ -19,6 +21,9 @@ namespace BSK_1_MD
         private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
         private Socket socket;
         private EndPoint ipEndPoint;
+        private bool connectionAquired = false;
+
+        public bool ConnectionEstablished { get => connectionAquired;}
 
         public TcpClients(string ip, Int32 port, ref Logger logger)
         {
@@ -46,6 +51,7 @@ namespace BSK_1_MD
             if (socket.Connected)
             {
                 logger.addToLogger(string.Format(message, "Connection established"));
+                connectionAquired = true;
             }
             else
             {
@@ -81,6 +87,104 @@ namespace BSK_1_MD
             catch (Exception e)
             {
                 logger.addToLogger(string.Format(message, e.ToString()));
+            }
+        }
+
+        private byte[] ConvertToBytes(string text)
+        {
+            byte[] msg;
+            switch (ConfigurationManager.AppSettings.Get("encoding"))
+            {
+                case "UTF8":
+                    msg = Encoding.UTF8.GetBytes(message);
+                    break;
+                case "UTF32":
+                    msg = Encoding.UTF32.GetBytes(message);
+                    break;
+                case "ASCII":
+                    msg = Encoding.ASCII.GetBytes(message);
+                    break;
+                default:
+                    msg = Encoding.Default.GetBytes(message);
+                    break;
+            }
+            return msg;
+        }
+
+        public void SendMessage(string message)
+        {
+            var msg = ConvertToBytes(message);
+            logger.addToLogger(string.Format(message, "Sending message" + message));
+            Send(msg, "text");
+        }
+
+        public void SendFile(string filePath, long size)
+        {
+            logger.addToLogger(string.Format(message, "Sending file:" + filePath));
+            Send(null, "file", file: filePath, size: size);
+        }
+
+        private void Send(byte[] bytes=null, string key_ = null, string file = null, long size = 0)
+        {
+            bool correct_key = false;
+            string correct_keys = "";
+            try
+            {
+                foreach(string key in ConfigurationManager.AppSettings.AllKeys)
+                {
+                    correct_keys += key + ", ";
+                    if( key_ == key)
+                    {
+                        correct_key = true;
+                        break;
+                    }
+                }
+                if (!correct_key)
+                {
+                    throw new System.ArgumentException("Wrong key, correct keys: " + correct_keys, "key");
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.addToLogger(string.Format(message, ex.ToString()));
+            }
+            switch (key_)
+            {
+                case "text":
+                    try
+                    {
+                        if (bytes == null)
+                        {
+                            throw new System.ArgumentNullException("Message empty");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.addToLogger(string.Format(message, ex.ToString()));
+                    }
+                    int bytesSent = socket.Send(bytes, SocketFlags.None);
+                    logger.addToLogger(string.Format(message, "Sent " + bytesSent + " bytes."));
+                    break;
+                case "file":
+                    try
+                    {
+                        if(file ==null || size == 0)
+                        {
+                            throw new System.ArgumentNullException("File or size is not given", "file, size");
+                        }
+                    }
+                    catch( Exception ex)
+                    {
+                        logger.addToLogger(string.Format(message, ex.ToString()));
+                    }
+                    string preText = "File {0}, size {1} being send";
+                    var preBuffer = ConvertToBytes(string.Format(preText, file, size));
+                    string postText = "File {0} sent";
+                    var postBuffer = ConvertToBytes(string.Format(postText, file));
+                    //toDo if size is big split file
+                    socket.SendFile(file, preBuffer, postBuffer, TransmitFileOptions.UseDefaultWorkerThread);
+                    logger.addToLogger(string.Format(message, "Sent " + file));
+                    break;
             }
         }
     }

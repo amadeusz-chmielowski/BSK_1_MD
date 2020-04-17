@@ -22,6 +22,9 @@ namespace BSK_1_MD
         private TcpServer tcpServer;
         private IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress ipAddress = null;
+        private string fileName = null;
+        private long fileSize = 0;
+        private bool fileOk = false;
         public BSK()
         {
             InitializeComponent();
@@ -41,9 +44,12 @@ namespace BSK_1_MD
             try
             {
                 string fileName = selectFileDialog.FileName;
+                this.fileName = fileName;
                 FileInfo fileInfo = new FileInfo(fileName);
                 double fileSize = fileInfo.Length / Math.Pow(10, 6);
+                this.fileSize = fileInfo.Length;
                 logger.addToLogger("[WFA] " + "File:\n " + fileName + "\nSize:\n" + fileSize + " MB");
+                this.fileOk = true;
             }
             catch (Exception error)
             {
@@ -69,6 +75,10 @@ namespace BSK_1_MD
             }
             tcpClient.Updatevariables(ip, port);
             tcpClient.Connect();
+            if (!tcpClient.ConnectionEstablished)
+            {
+                ChangeVisibilityConnectButton(true);
+            }
         }
 
         #region Logger worker methods
@@ -153,39 +163,47 @@ namespace BSK_1_MD
 
         private void StatusText()
         {
-            //if (this.consoleOutputTextBox.InvokeRequired)
-            //{
-            //    StatusTextCallback r = new StatusTextCallback(StatusText);
-            //    this.Invoke(r, new object[] {});
-            //}
-            //else
-            //{
-            //    string text = tcpClient.ConnectedToServer ? "Connected" : "Not connected";
-            //    connectionStatusTextBox.Text = text;
-            //}
+            if (this.consoleOutputTextBox.InvokeRequired)
+            {
+                StatusTextCallback r = new StatusTextCallback(StatusText);
+                this.Invoke(r, new object[] { });
+            }
+            else
+            {
+                string text = tcpClient.ConnectionEstablished ? "Connected" : "Not connected";
+                connectionStatusTextBox.Text = text;
+            }
         }
         private void copyConsoleWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //while (true)
-            //{
-            //   if(tcpClient != null)
-            //    {
-            //        StatusText();
-            //        if (tcpClient.ConnectedToServer)
-            //        {
-            //            break;
-            //        }
-            //    }
-            //}
+            while (true)
+            {
+                if (tcpClient != null)
+                {
+                    StatusText();
+                    if (tcpClient.ConnectionEstablished)
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
         private void sendTextButton_Click(object sender, EventArgs e)
         {
-            //if (tcpClient.ConnectedToServer)
-            //{
-            //    var text = textToSendTextBox.Text;
-            //    tcpClient.SendMessage(text);
-            //}
+            if (tcpClient.ConnectionEstablished)
+            {
+                var text = textToSendTextBox.Text;
+                if(text.Length != 0)
+                {
+                    tcpClient.SendMessage(text);
+                }
+                if (this.fileOk)
+                {
+                    tcpClient.SendFile(this.fileName, this.fileSize);
+                    this.fileOk = false;
+                }
+            }
         }
 
         private void messageReciverWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -223,11 +241,44 @@ namespace BSK_1_MD
             }
         }
 
+        delegate void SetTextToConnectButton(string text);
+        delegate void ChangeVisibilityToConnectButton(bool value);
+
+        private void SetTextConnectButton(string text)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                SetTextToConnectButton setTextToConnectButton = new SetTextToConnectButton(SetTextConnectButton);
+                this.Invoke(setTextToConnectButton, new object[] { text });
+            }
+            else
+            {
+                connectToServerButton.Text = text;
+            }
+        }
+
+        private void ChangeVisibilityConnectButton(bool value)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                ChangeVisibilityToConnectButton changeVisibilityToConnectButton = new ChangeVisibilityToConnectButton(ChangeVisibilityConnectButton);
+                this.Invoke(changeVisibilityToConnectButton, new object[] { value });
+            }
+            else
+            {
+                connectToServerButton.Enabled = value;
+            }
+        }
+
         private void connectionWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             //To do
-            // verify ip, port 
+            // verify ip, port
+            ChangeVisibilityConnectButton(false);
             startConnections();
+            //toDo
+            //SetTextConnectButton("Disconnect");
+            //ChangeVisibilityConnectButton(true);
         }
     }
 }
