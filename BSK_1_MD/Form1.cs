@@ -50,6 +50,7 @@ namespace BSK_1_MD
                 this.fileSize = fileInfo.Length;
                 logger.addToLogger("[WFA] " + "File:\n " + fileName + "\nSize:\n" + fileSize + " MB");
                 this.fileOk = true;
+                sendFileButton.Enabled = true;
             }
             catch (Exception error)
             {
@@ -198,11 +199,6 @@ namespace BSK_1_MD
                 {
                     tcpClient.SendMessage(text);
                 }
-                if (this.fileOk)
-                {
-                    tcpClient.SendFile(this.fileName, this.fileSize);
-                    this.fileOk = false;
-                }
             }
         }
 
@@ -279,6 +275,19 @@ namespace BSK_1_MD
             //toDo
             //SetTextConnectButton("Disconnect");
             //ChangeVisibilityConnectButton(true);
+        }
+
+        private void sendFileButton_Click(object sender, EventArgs e)
+        {
+            if (tcpClient.ConnectionEstablished)
+            {
+                if (this.fileOk)
+                {
+                    tcpClient.SendFile(this.fileName, this.fileSize);
+                    this.fileOk = false;
+                }
+            }
+
         }
     }
 }

@@ -187,6 +187,7 @@
             // sendFileButton
             // 
             this.sendFileButton.Depth = 0;
+            this.sendFileButton.Enabled = false;
             this.sendFileButton.Font = new System.Drawing.Font("Consolas", 10F);
             this.sendFileButton.Location = new System.Drawing.Point(494, 112);
             this.sendFileButton.MouseState = MaterialSkin.MouseState.HOVER;
@@ -196,6 +197,7 @@
             this.sendFileButton.TabIndex = 2;
             this.sendFileButton.Text = "Send";
             this.sendFileButton.UseVisualStyleBackColor = true;
+            this.sendFileButton.Click += new System.EventHandler(this.sendFileButton_Click);
             // 
             // fileSelectButton
             // 
@@ -488,9 +490,6 @@
             this.materialTabSelector1.Size = new System.Drawing.Size(700, 49);
             this.materialTabSelector1.TabIndex = 1;
             this.materialTabSelector1.Text = "materialTabSelector1";
-            // 
-            // selectFileDialog
-            // 
             // 
             // loggerWorker
             // 
