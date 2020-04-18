@@ -96,16 +96,16 @@ namespace BSK_1_MD
             switch (ConfigurationManager.AppSettings.Get("encoding"))
             {
                 case "UTF8":
-                    msg = Encoding.UTF8.GetBytes(message);
+                    msg = Encoding.UTF8.GetBytes(text);
                     break;
                 case "UTF32":
-                    msg = Encoding.UTF32.GetBytes(message);
+                    msg = Encoding.UTF32.GetBytes(text);
                     break;
                 case "ASCII":
-                    msg = Encoding.ASCII.GetBytes(message);
+                    msg = Encoding.ASCII.GetBytes(text);
                     break;
                 default:
-                    msg = Encoding.Default.GetBytes(message);
+                    msg = Encoding.Default.GetBytes(text);
                     break;
             }
             return msg;
