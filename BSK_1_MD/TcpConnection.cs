@@ -241,5 +241,16 @@ namespace BSK_1_MD
                 manualResetEvent.Set();
             }
         }
+
+        public void Recive()
+        {
+            byte[] bytes = new byte[256];
+            if(listener.Available > 0)
+            {
+                int bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
+                logger.addToLogger(string.Format(message, "Message:" + Encoding.UTF8.GetString(bytes)));
+            }
+            
+        }
     }
 }

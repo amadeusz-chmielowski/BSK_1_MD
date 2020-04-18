@@ -148,7 +148,7 @@ namespace BSK_1_MD
             tcpServer = new TcpServer(port, ref logger);
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
-            //messageReciverWorker.RunWorkerAsync();
+            messageReciverWorker.RunWorkerAsync();
         }
 
         private void startServerWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -204,14 +204,14 @@ namespace BSK_1_MD
 
         private void messageReciverWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //while (true)
-            //{
-            //    if (tcpServer.ServerStarted)
-            //    {
-            //        tcpServer.ReciveMessage();
-            //        System.Threading.Thread.Sleep(50);
-            //    }
-            //}
+            while (true)
+            {
+                if (tcpServer.ServerStarted)
+                {
+                    tcpServer.Recive();
+                    System.Threading.Thread.Sleep(50);
+                }
+            }
         }
 
         private void consoleOutputTextBox_TextChanged(object sender, EventArgs e)
