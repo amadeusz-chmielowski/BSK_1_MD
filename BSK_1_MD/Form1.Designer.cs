@@ -68,6 +68,7 @@
             this.messageReciverWorker = new System.ComponentModel.BackgroundWorker();
             this.connectionWorker = new System.ComponentModel.BackgroundWorker();
             this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
+            this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -515,6 +516,11 @@
             // 
             this.sendFileWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.sendFileWorker_DoWork);
             // 
+            // progressBarWorker
+            // 
+            this.progressBarWorker.WorkerReportsProgress = true;
+            this.progressBarWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.progressBarWorker_DoWork);
+            // 
             // BSK
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -587,6 +593,7 @@
         private System.Windows.Forms.TextBox savePathLabel;
         private System.ComponentModel.BackgroundWorker connectionWorker;
         private System.ComponentModel.BackgroundWorker sendFileWorker;
+        private System.ComponentModel.BackgroundWorker progressBarWorker;
     }
 }
 

@@ -23,8 +23,12 @@ namespace BSK_1_MD
         private Socket socket;
         private EndPoint ipEndPoint;
         private bool connectionAquired = false;
+        private int progressValue = 0;
+        private bool fileSent = false;
 
         public bool ConnectionEstablished { get => connectionAquired;}
+        public int ProgressValue { get => progressValue; set => progressValue = value; }
+        public bool FileSent { get => fileSent; set => fileSent = value; }
 
         public TcpClients(string ip, Int32 port, ref Logger logger)
         {
@@ -199,10 +203,37 @@ namespace BSK_1_MD
                     string postText = Environment.NewLine + "File {0} sent";
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     //toDo if size is big split file
-                    socket.Send(preBuffer);
-                    int dataSendSize = socket.Send(ReadFile(file));
-                    socket.Send(postBuffer);
+                    //socket.Send(preBuffer);
+                    byte[] fileBuffer = ReadFile(file);
+                    if (size > 1000)
+                    {
+                        long partionSize = size / 1000;
+                        int part = Convert.ToInt32(partionSize);
+                        long dataSend = 0;
+                        int i;
+                        for (i =0; i< part; i++)
+                        {
+                            int dataSendSize = socket.Send(buffer: fileBuffer, offset: i*1000 , size: 1000, socketFlags: SocketFlags.None);
+                            dataSend += dataSendSize;
+                            progressValue = Convert.ToInt32(dataSend / size * 100);
+                           // Thread.Sleep(1);
+                        }
+                      //  Thread.Sleep(5);
+                        long restSize = size - dataSend;
+                        int restData = socket.Send(buffer: fileBuffer, i * 1000, Convert.ToInt32(restSize), socketFlags: SocketFlags.None);
+                        progressValue = Convert.ToInt32(100);
+                       // Thread.Sleep(10);
+                    }
+                    else
+                    {
+                        progressValue = 50;
+                        int dataSendSize = socket.Send(fileBuffer);
+                        progressValue = 100;
+                    }
+                    
+                    //socket.Send(postBuffer);
                     logger.addToLogger(string.Format(message, "Sent " + file));
+                    fileSent = true;
                     break;
             }
         }

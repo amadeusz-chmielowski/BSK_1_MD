@@ -36,6 +36,7 @@ namespace BSK_1_MD
             ipAddress = ipHostInfo.AddressList[1];
             savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
+            progressBarWorker.WorkerSupportsCancellation = true;
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -48,7 +49,7 @@ namespace BSK_1_MD
                 FileInfo fileInfo = new FileInfo(fileName);
                 double fileSize = fileInfo.Length / Math.Pow(10, 6);
                 this.fileSize = fileInfo.Length;
-                logger.addToLogger("[WFA] " + "File:\n " + fileName + "\nSize:\n" + fileSize + " MB");
+                logger.addToLogger("[WFA] " + "File: " + fileName + " Size: " + fileSize + " MB");
                 this.fileOk = true;
                 sendFileButton.Enabled = true;
             }
@@ -209,7 +210,6 @@ namespace BSK_1_MD
                 if (tcpServer.ServerStarted)
                 {
                     tcpServer.Recive();
-                    System.Threading.Thread.Sleep(50);
                 }
             }
         }
@@ -279,8 +279,8 @@ namespace BSK_1_MD
 
         private void sendFileButton_Click(object sender, EventArgs e)
         {
-
             sendFileWorker.RunWorkerAsync();
+
         }
 
         private void sendFileWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -289,10 +289,38 @@ namespace BSK_1_MD
             {
                 if (this.fileOk)
                 {
+                    tcpClient.FileSent = false;
+                    progressBarWorker.RunWorkerAsync();
                     tcpClient.SendFile(this.fileName, this.fileSize);
                     this.fileOk = false;
+                    
                 }
             }
         }
+
+        delegate void ProgressHandle(int value);
+
+        private void ChangeProgress(int value)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                ProgressHandle progressHandle = new ProgressHandle(ChangeProgress);
+                this.Invoke(progressHandle, new object[] { value });
+            }
+            else
+            {
+                progressBar1.Value = value;
+            }
+        }
+
+        private void progressBarWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (!tcpClient.FileSent)
+            {
+                ChangeProgress(tcpClient.ProgressValue);
+            }
+        }
+
+
     }
 }
