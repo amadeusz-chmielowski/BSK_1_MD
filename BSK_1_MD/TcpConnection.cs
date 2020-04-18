@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using System.IO;
 
 namespace BSK_1_MD
 {
@@ -124,6 +125,22 @@ namespace BSK_1_MD
             Send(null, "file", file: filePath, size: size);
         }
 
+        private byte[] ReadFile(string filePath)
+        {
+            byte[] bytes;
+            try
+            {
+                // Create a byte array of file stream length
+                bytes = System.IO.File.ReadAllBytes(filePath);
+                return bytes; //return the byte data
+            }
+            catch(Exception ex)
+            {
+                logger.addToLogger(string.Format(message, ex.ToString()));
+                return null;
+            }
+        }
+
         private void Send(byte[] bytes=null, string key_ = null, string file = null, long size = 0)
         {
             bool correct_key = false;
@@ -177,12 +194,14 @@ namespace BSK_1_MD
                     {
                         logger.addToLogger(string.Format(message, ex.ToString()));
                     }
-                    string preText = "File {0}, size {1} being send";
-                    var preBuffer = ConvertToBytes(string.Format(preText, file, size));
-                    string postText = "File {0} sent";
-                    var postBuffer = ConvertToBytes(string.Format(postText, file));
+                    string preText = "File {0}, size {1} being send" + Environment.NewLine;
+                    var preBuffer = ConvertToBytes(string.Format(preText, Path.GetFileName(file), size));
+                    string postText = Environment.NewLine + "File {0} sent";
+                    var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     //toDo if size is big split file
-                    socket.SendFile(file, preBuffer, postBuffer, TransmitFileOptions.UseDefaultWorkerThread);
+                    socket.Send(preBuffer);
+                    int dataSendSize = socket.Send(ReadFile(file));
+                    socket.Send(postBuffer);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     break;
             }

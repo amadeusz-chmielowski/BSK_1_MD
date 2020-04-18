@@ -67,7 +67,7 @@
             this.copyConsoleWorker = new System.ComponentModel.BackgroundWorker();
             this.messageReciverWorker = new System.ComponentModel.BackgroundWorker();
             this.connectionWorker = new System.ComponentModel.BackgroundWorker();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -511,6 +511,10 @@
             // 
             this.connectionWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.connectionWorker_DoWork);
             // 
+            // sendFileWorker
+            // 
+            this.sendFileWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.sendFileWorker_DoWork);
+            // 
             // BSK
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -582,7 +586,7 @@
         private MaterialSkin.Controls.MaterialRaisedButton pathSelectorButton;
         private System.Windows.Forms.TextBox savePathLabel;
         private System.ComponentModel.BackgroundWorker connectionWorker;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.ComponentModel.BackgroundWorker sendFileWorker;
     }
 }
 

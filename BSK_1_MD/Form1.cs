@@ -279,6 +279,12 @@ namespace BSK_1_MD
 
         private void sendFileButton_Click(object sender, EventArgs e)
         {
+
+            sendFileWorker.RunWorkerAsync();
+        }
+
+        private void sendFileWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
             if (tcpClient.ConnectionEstablished)
             {
                 if (this.fileOk)
@@ -287,7 +293,6 @@ namespace BSK_1_MD
                     this.fileOk = false;
                 }
             }
-
         }
     }
 }
