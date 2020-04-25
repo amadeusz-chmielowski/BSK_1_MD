@@ -204,7 +204,7 @@ namespace BSK_1_MD
                     string postText = Environment.NewLine + "File {0} sent";
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     //toDo if size is big split file
-                    //socket.Send(preBuffer);
+                    socket.Send(preBuffer);
                     byte[] fileBuffer = ReadFile(file);
                     if (size > 1000)
                     {
@@ -217,13 +217,13 @@ namespace BSK_1_MD
                             int dataSendSize = socket.Send(buffer: fileBuffer, offset: i*1000 , size: 1000, socketFlags: SocketFlags.None);
                             dataSend += dataSendSize;
                             progressValue = Convert.ToInt32(dataSend / size * 100);
-                           // Thread.Sleep(1);
+                            Thread.Sleep(1);
                         }
-                      //  Thread.Sleep(5);
+                        Thread.Sleep(5);
                         long restSize = size - dataSend;
                         int restData = socket.Send(buffer: fileBuffer, i * 1000, Convert.ToInt32(restSize), socketFlags: SocketFlags.None);
                         progressValue = Convert.ToInt32(100);
-                       // Thread.Sleep(10);
+                        Thread.Sleep(10);
                     }
                     else
                     {
@@ -232,7 +232,7 @@ namespace BSK_1_MD
                         progressValue = 100;
                     }
                     
-                    //socket.Send(postBuffer);
+                    socket.Send(postBuffer);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
                     break;
