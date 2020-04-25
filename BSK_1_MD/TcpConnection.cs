@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace BSK_1_MD
 {
@@ -241,10 +242,16 @@ namespace BSK_1_MD
     class TcpServer
     {
         private string message = "[Server] {0}";
+        Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine +".*");
         private Int32 port;
         private Logger logger;
         private Socket listener;
         private IPEndPoint localEndPoint;
+        private enum messageType
+        {
+            Text,
+            File
+        };
 
 
         IPAddress ip;
@@ -292,13 +299,29 @@ namespace BSK_1_MD
             }
         }
 
+        private messageType TextOrFileDetermination(byte[] bytes)
+        {
+            var message = Encoding.UTF8.GetString(bytes);
+            if (preTextRegex.IsMatch(message))
+            {
+                var capturedText = preTextRegex.Match(message).Groups[1].Value;
+                return messageType.File;
+            }
+            else
+            {
+                return messageType.Text;
+            }    
+        }
+
         public void Recive()
         {
             byte[] bytes = new byte[256];
             if(listener.Available > 0)
             {
+
                 int bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
-                logger.addToLogger(string.Format(message, "Message:" + Encoding.UTF8.GetString(bytes)));
+                TextOrFileDetermination(bytes);
+                //logger.addToLogger(string.Format(message, "Message:" + Encoding.UTF8.GetString(bytes)));
             }
             
         }
