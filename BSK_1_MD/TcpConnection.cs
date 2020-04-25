@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace BSK_1_MD
 {
+
     class TcpClients
     {
         private string message = "[Client] {0}";
@@ -201,10 +202,14 @@ namespace BSK_1_MD
                     }
                     string preText = "File {0}, size {1} being send" + Environment.NewLine;
                     var preBuffer = ConvertToBytes(string.Format(preText, Path.GetFileName(file), size));
+                    byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                    Array.Copy(preBuffer, preBufferCorrectSize, preBuffer.Length);
                     string postText = Environment.NewLine + "File {0} sent";
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
+                    byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                    Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
                     //toDo if size is big split file
-                    socket.Send(preBuffer);
+                    socket.Send(preBufferCorrectSize);
                     byte[] fileBuffer = ReadFile(file);
                     if (size > 1000)
                     {
@@ -232,7 +237,7 @@ namespace BSK_1_MD
                         progressValue = 100;
                     }
 
-                    socket.Send(postBuffer);
+                    socket.Send(postBufferCorrectSize);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
                     break;
@@ -364,7 +369,7 @@ namespace BSK_1_MD
 
         public void Recive()
         {
-            byte[] bytes = new byte[256];
+            byte[] bytes = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
             if (listener.Available > 0)
             {  
                 int bytesRecivedSize;
