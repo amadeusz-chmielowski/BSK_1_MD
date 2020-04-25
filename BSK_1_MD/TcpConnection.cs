@@ -247,6 +247,7 @@ namespace BSK_1_MD
         private Logger logger;
         private Socket listener;
         private IPEndPoint localEndPoint;
+        private FileToSave fileToSave = null;
         private enum messageType
         {
             Text,
@@ -320,7 +321,6 @@ namespace BSK_1_MD
 
         private void Reciver(byte[] bytes, int bytesRecivedSize)
         {
-            FileToSave fileToSave = null;
             if (savingFile)
             {
                 if (fileToSave.SizeToAppend < Convert.ToUInt32(bytesRecivedSize))
