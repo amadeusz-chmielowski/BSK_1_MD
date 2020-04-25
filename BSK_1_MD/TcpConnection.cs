@@ -27,7 +27,7 @@ namespace BSK_1_MD
         private int progressValue = 0;
         private bool fileSent = false;
 
-        public bool ConnectionEstablished { get => connectionAquired;}
+        public bool ConnectionEstablished { get => connectionAquired; }
         public int ProgressValue { get => progressValue; set => progressValue = value; }
         public bool FileSent { get => fileSent; set => fileSent = value; }
 
@@ -139,23 +139,23 @@ namespace BSK_1_MD
                 bytes = System.IO.File.ReadAllBytes(filePath);
                 return bytes; //return the byte data
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.addToLogger(string.Format(message, ex.ToString()));
                 return null;
             }
         }
 
-        private void Send(byte[] bytes=null, string key_ = null, string file = null, long size = 0)
+        private void Send(byte[] bytes = null, string key_ = null, string file = null, long size = 0)
         {
             bool correct_key = false;
             string correct_keys = "";
             try
             {
-                foreach(string key in ConfigurationManager.AppSettings.AllKeys)
+                foreach (string key in ConfigurationManager.AppSettings.AllKeys)
                 {
                     correct_keys += key + ", ";
-                    if( key_ == key)
+                    if (key_ == key)
                     {
                         correct_key = true;
                         break;
@@ -166,7 +166,7 @@ namespace BSK_1_MD
                     throw new System.ArgumentException("Wrong key, correct keys: " + correct_keys, "key");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.addToLogger(string.Format(message, ex.ToString()));
             }
@@ -190,12 +190,12 @@ namespace BSK_1_MD
                 case "file":
                     try
                     {
-                        if(file ==null || size == 0)
+                        if (file == null || size == 0)
                         {
                             throw new System.ArgumentNullException("File or size is not given", "file, size");
                         }
                     }
-                    catch( Exception ex)
+                    catch (Exception ex)
                     {
                         logger.addToLogger(string.Format(message, ex.ToString()));
                     }
@@ -212,9 +212,9 @@ namespace BSK_1_MD
                         int part = Convert.ToInt32(partionSize);
                         long dataSend = 0;
                         int i;
-                        for (i =0; i< part; i++)
+                        for (i = 0; i < part; i++)
                         {
-                            int dataSendSize = socket.Send(buffer: fileBuffer, offset: i*1000 , size: 1000, socketFlags: SocketFlags.None);
+                            int dataSendSize = socket.Send(buffer: fileBuffer, offset: i * 1000, size: 1000, socketFlags: SocketFlags.None);
                             dataSend += dataSendSize;
                             progressValue = Convert.ToInt32(dataSend / size * 100);
                             Thread.Sleep(1);
@@ -231,7 +231,7 @@ namespace BSK_1_MD
                         int dataSendSize = socket.Send(fileBuffer);
                         progressValue = 100;
                     }
-                    
+
                     socket.Send(postBuffer);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
@@ -242,7 +242,7 @@ namespace BSK_1_MD
     class TcpServer
     {
         private string message = "[Server] {0}";
-        Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine +".*");
+        Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
         private Int32 port;
         private Logger logger;
         private Socket listener;
@@ -252,6 +252,8 @@ namespace BSK_1_MD
             Text,
             File
         };
+
+        private bool savingFile = false;
 
 
         IPAddress ip;
@@ -299,31 +301,70 @@ namespace BSK_1_MD
             }
         }
 
-        private messageType TextOrFileDetermination(byte[] bytes)
+        private messageType TextOrFileDetermination(byte[] bytes, ref FileToSave fileToSave)
         {
             var message = Encoding.UTF8.GetString(bytes);
             if (preTextRegex.IsMatch(message))
             {
-                var capturedText = preTextRegex.Match(message).Groups[1].Value;
+                var match = preTextRegex.Match(message);
+                var fileName = match.Groups[1].Value;
+                var fileSize = Convert.ToUInt32(match.Groups[2].Value);
+                fileToSave = new FileToSave(fileName, fileSize);
                 return messageType.File;
             }
             else
             {
                 return messageType.Text;
-            }    
+            }
+        }
+
+        private void Reciver(byte[] bytes, int bytesRecivedSize)
+        {
+            FileToSave fileToSave = null;
+            if (savingFile)
+            {
+                if (fileToSave.SizeToAppend < Convert.ToUInt32(bytesRecivedSize))
+                {
+                    byte[] vs = new byte[256];
+                    int newSize = (bytesRecivedSize - Convert.ToInt32(fileToSave.SizeToAppend));
+                    Array.Copy(bytes, fileToSave.SizeToAppend, vs, 0, newSize);
+                    fileToSave.AppendBytes(bytes, fileToSave.SizeToAppend);
+                    fileToSave.SaveFile("./");
+                    savingFile = false;
+                    Reciver(vs, newSize);
+                }
+
+            }
+            else
+            {
+                switch (TextOrFileDetermination(bytes, ref fileToSave))
+                {
+                    case messageType.Text:
+                        {
+                            var text = Encoding.UTF8.GetString(bytes);
+                            logger.addToLogger(string.Format(message, "Message: " + text));
+                            break;
+                        }
+                    case messageType.File:
+                        {
+                            savingFile = true;
+                            break;
+                        }
+                }
+
+            }
         }
 
         public void Recive()
         {
             byte[] bytes = new byte[256];
-            if(listener.Available > 0)
-            {
-
-                int bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
-                TextOrFileDetermination(bytes);
-                //logger.addToLogger(string.Format(message, "Message:" + Encoding.UTF8.GetString(bytes)));
+            if (listener.Available > 0)
+            {  
+                int bytesRecivedSize;
+                bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
+                Reciver(bytes, bytesRecivedSize);
             }
-            
+
         }
     }
 }
