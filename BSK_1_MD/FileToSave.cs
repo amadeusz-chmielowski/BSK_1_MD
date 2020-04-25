@@ -35,10 +35,8 @@ namespace BSK_1_MD
 
         public void AppendBytes( byte[] bytes, UInt32 size)
         {
-            for(int i =0; i < size; i++)
-            {
-                this.bytes.Append(bytes[i]);
-            }
+            Array.Copy(bytes, 0, this.bytes, appendedSize, size);
+            appendedSize += size;
             SizeToAppend -= size;
         }
 
