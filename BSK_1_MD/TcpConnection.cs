@@ -333,6 +333,11 @@ namespace BSK_1_MD
                     savingFile = false;
                     Reciver(vs, newSize);
                 }
+                else
+                {
+                    fileToSave.AppendBytes(bytes, Convert.ToUInt32(bytesRecivedSize));
+                    savingFile = true;
+                }
 
             }
             else
@@ -347,6 +352,8 @@ namespace BSK_1_MD
                         }
                     case messageType.File:
                         {
+                            var text = Encoding.UTF8.GetString(bytes);
+                            logger.addToLogger(string.Format(message, "Message: " + text));
                             savingFile = true;
                             break;
                         }
