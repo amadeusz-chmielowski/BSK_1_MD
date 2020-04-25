@@ -222,13 +222,10 @@ namespace BSK_1_MD
                             int dataSendSize = socket.Send(buffer: fileBuffer, offset: i * 1000, size: 1000, socketFlags: SocketFlags.None);
                             dataSend += dataSendSize;
                             progressValue = Convert.ToInt32(dataSend / size * 100);
-                            Thread.Sleep(1);
                         }
-                        Thread.Sleep(5);
                         long restSize = size - dataSend;
                         int restData = socket.Send(buffer: fileBuffer, i * 1000, Convert.ToInt32(restSize), socketFlags: SocketFlags.None);
                         progressValue = Convert.ToInt32(100);
-                        Thread.Sleep(10);
                     }
                     else
                     {

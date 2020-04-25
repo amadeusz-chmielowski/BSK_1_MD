@@ -317,7 +317,11 @@ namespace BSK_1_MD
         {
             while (!tcpClient.FileSent)
             {
-                ChangeProgress(tcpClient.ProgressValue);
+                var progresValue = tcpClient.ProgressValue;
+                if( progresValue > 0)
+                {
+                    ChangeProgress(progresValue);
+                }
             }
         }
 
