@@ -122,9 +122,23 @@ namespace BSK_1_MD
 
         public void SendMessage(string message)
         {
-            var msg = ConvertToBytes(message);
-            logger.addToLogger(string.Format(message, "Sending message" + message));
-            Send(msg, "text");
+            try
+            {
+
+
+                Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
+                if (preTextRegex.IsMatch(message))
+                {
+                    throw new System.ArgumentException("Text contains forbidden message " + preTextRegex.ToString());
+                }
+                var msg = ConvertToBytes(message);
+                logger.addToLogger(string.Format(message, "Sending message" + message));
+                Send(msg, "text");
+            }
+            catch (Exception ex)
+            {
+                logger.addToLogger(string.Format(message, "Error" + ex.Message));
+            }
         }
 
         public void SendFile(string filePath, long size)
