@@ -198,7 +198,7 @@ namespace BSK_1_MD
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
                     socket.Send(preBufferCorrectSize);
 
-                    while(fileToRead.SizeToRead == 0)
+                    while(fileToRead.SizeToRead > 0)
                     {
                         byte[] bytesToSend = fileToRead.ReadBytes();
                         socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);

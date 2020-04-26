@@ -54,7 +54,7 @@ namespace BSK_1_MD
             if (fileStream != null)
             {
                 byte[] readedbytes = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
-                int sizeRead = fileStream.Read(readedbytes, Convert.ToInt32(readSize), readedbytes.Length);
+                int sizeRead = fileStream.Read(readedbytes, 0, readedbytes.Length);
                 readSize += Convert.ToUInt32(sizeRead);
                 sizeToRead -= Convert.ToUInt32(sizeRead);
                 return readedbytes;
