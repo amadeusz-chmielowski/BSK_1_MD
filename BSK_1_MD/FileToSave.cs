@@ -52,7 +52,7 @@ namespace BSK_1_MD
         {
             if(fileStream != null)
             {
-                fileStream.Write(bytes, Convert.ToInt32(appendedSize), Convert.ToInt32(size));
+                fileStream.Write(bytes, 0, Convert.ToInt32(size));
             }
             appendedSize += size;
             SizeToAppend -= size;
