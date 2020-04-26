@@ -197,13 +197,14 @@ namespace BSK_1_MD
                     byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
                     socket.Send(preBufferCorrectSize);
-
+                    Thread.Sleep(10);
                     while(fileToRead.SizeToRead > 0)
                     {
                         byte[] bytesToSend = fileToRead.ReadBytes();
                         socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
-                        progressValue = Convert.ToInt32((size - fileToRead.SizeToRead) / Convert.ToDouble(size));
+                        progressValue = Convert.ToInt32((size - fileToRead.SizeToRead) / Convert.ToDouble(size) * Convert.ToDouble(ConfigurationManager.AppSettings.Get("ProgressBarMax")));
                     }
+                    Thread.Sleep(20);
                     socket.Send(postBufferCorrectSize);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;

@@ -143,6 +143,7 @@
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.progressBar1.Location = new System.Drawing.Point(0, 259);
+            this.progressBar1.Maximum = 1000;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(692, 22);
             this.progressBar1.TabIndex = 2;
@@ -491,6 +492,10 @@
             this.materialTabSelector1.Size = new System.Drawing.Size(700, 49);
             this.materialTabSelector1.TabIndex = 1;
             this.materialTabSelector1.Text = "materialTabSelector1";
+            // 
+            // selectFileDialog
+            // 
+            this.selectFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.selectFileDialog_FileOk);
             // 
             // loggerWorker
             // 

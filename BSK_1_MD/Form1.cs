@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
+using System.Configuration;
+using System.Threading;
 
 namespace BSK_1_MD
 {
@@ -25,6 +27,7 @@ namespace BSK_1_MD
         private string fileName = null;
         private long fileSize = 0;
         private bool fileOk = false;
+        private bool sendingFile = false;
         public BSK()
         {
             InitializeComponent();
@@ -37,6 +40,7 @@ namespace BSK_1_MD
             savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
             progressBarWorker.WorkerSupportsCancellation = true;
+            progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -50,7 +54,6 @@ namespace BSK_1_MD
                 double fileSize = fileInfo.Length / Math.Pow(10, 6);
                 this.fileSize = fileInfo.Length;
                 logger.addToLogger("[WFA] " + "File: " + fileName + " Size: " + fileSize + " MB");
-                this.fileOk = true;
                 sendFileButton.Enabled = true;
             }
             catch (Exception error)
@@ -183,10 +186,7 @@ namespace BSK_1_MD
                 if (tcpClient != null)
                 {
                     StatusText();
-                    if (tcpClient.ConnectionEstablished)
-                    {
-                        break;
-                    }
+                    Thread.Sleep(20);
                 }
             }
         }
@@ -196,9 +196,12 @@ namespace BSK_1_MD
             if (tcpClient.ConnectionEstablished)
             {
                 var text = textToSendTextBox.Text;
-                if(text.Length != 0)
+                if (text.Length != 0)
                 {
-                    tcpClient.SendMessage(text);
+                    if (!this.sendingFile)
+                    {
+                        tcpClient.SendMessage(text);
+                    }
                 }
             }
         }
@@ -279,6 +282,7 @@ namespace BSK_1_MD
 
         private void sendFileButton_Click(object sender, EventArgs e)
         {
+            ChangeProgress(0);
             sendFileWorker.RunWorkerAsync();
 
         }
@@ -289,11 +293,15 @@ namespace BSK_1_MD
             {
                 if (this.fileOk)
                 {
+                    this.sendingFile = true;
+                    this.sendTextButton.Enabled = false;
                     tcpClient.FileSent = false;
                     progressBarWorker.RunWorkerAsync();
                     tcpClient.SendFile(this.fileName, this.fileSize);
                     this.fileOk = false;
-                    
+                    this.sendingFile = false;
+                    this.sendTextButton.Enabled = true;
+
                 }
             }
         }
@@ -318,13 +326,16 @@ namespace BSK_1_MD
             while (!tcpClient.FileSent)
             {
                 var progresValue = tcpClient.ProgressValue;
-                if( progresValue > 0)
+                if (progresValue > 0)
                 {
                     ChangeProgress(progresValue);
                 }
             }
         }
 
-
+        private void selectFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            this.fileOk = true;
+        }
     }
 }
