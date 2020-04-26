@@ -192,7 +192,7 @@ namespace BSK_1_MD
                     var preBuffer = ConvertToBytes(string.Format(preText, Path.GetFileName(file), size));
                     byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(preBuffer, preBufferCorrectSize, preBuffer.Length);
-                    string postText = Environment.NewLine + "File {0} sent";
+                    string postText = "File {0} sent";
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
