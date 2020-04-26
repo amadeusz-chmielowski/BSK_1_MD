@@ -67,7 +67,8 @@
             this.copyConsoleWorker = new System.ComponentModel.BackgroundWorker();
             this.messageReciverWorker = new System.ComponentModel.BackgroundWorker();
             this.connectionWorker = new System.ComponentModel.BackgroundWorker();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
+            this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -142,6 +143,7 @@
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.progressBar1.Location = new System.Drawing.Point(0, 259);
+            this.progressBar1.Maximum = 1000;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(692, 22);
             this.progressBar1.TabIndex = 2;
@@ -187,6 +189,7 @@
             // sendFileButton
             // 
             this.sendFileButton.Depth = 0;
+            this.sendFileButton.Enabled = false;
             this.sendFileButton.Font = new System.Drawing.Font("Consolas", 10F);
             this.sendFileButton.Location = new System.Drawing.Point(494, 112);
             this.sendFileButton.MouseState = MaterialSkin.MouseState.HOVER;
@@ -196,6 +199,7 @@
             this.sendFileButton.TabIndex = 2;
             this.sendFileButton.Text = "Send";
             this.sendFileButton.UseVisualStyleBackColor = true;
+            this.sendFileButton.Click += new System.EventHandler(this.sendFileButton_Click);
             // 
             // fileSelectButton
             // 
@@ -489,6 +493,10 @@
             this.materialTabSelector1.TabIndex = 1;
             this.materialTabSelector1.Text = "materialTabSelector1";
             // 
+            // selectFileDialog
+            // 
+            this.selectFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.selectFileDialog_FileOk);
+            // 
             // loggerWorker
             // 
             this.loggerWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.loggerWorker_DoWork);
@@ -508,6 +516,15 @@
             // connectionWorker
             // 
             this.connectionWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.connectionWorker_DoWork);
+            // 
+            // sendFileWorker
+            // 
+            this.sendFileWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.sendFileWorker_DoWork);
+            // 
+            // progressBarWorker
+            // 
+            this.progressBarWorker.WorkerReportsProgress = true;
+            this.progressBarWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.progressBarWorker_DoWork);
             // 
             // BSK
             // 
@@ -580,7 +597,8 @@
         private MaterialSkin.Controls.MaterialRaisedButton pathSelectorButton;
         private System.Windows.Forms.TextBox savePathLabel;
         private System.ComponentModel.BackgroundWorker connectionWorker;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.ComponentModel.BackgroundWorker sendFileWorker;
+        private System.ComponentModel.BackgroundWorker progressBarWorker;
     }
 }
 

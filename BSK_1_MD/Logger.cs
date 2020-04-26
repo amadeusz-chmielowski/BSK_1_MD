@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace BSK_1_MD
 {
+
     class Logger
     {
         private List<string> loggerList;
@@ -27,12 +29,12 @@ namespace BSK_1_MD
         public string popOfLogger()
         {
             string returnText = "";
-            if(loggerList.Count > 0 && loggerList != null)
+            if (loggerList.Count > 0 && loggerList != null)
             {
                 returnText = loggerList.First();
                 loggerList.RemoveAt(0);
             }
-            return returnText;        
+            return returnText;
         }
 
     }

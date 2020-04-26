@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
+using System.Configuration;
+using System.Threading;
 
 namespace BSK_1_MD
 {
@@ -22,6 +24,12 @@ namespace BSK_1_MD
         private TcpServer tcpServer;
         private IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress ipAddress = null;
+        private string fileName = null;
+        private long fileSize = 0;
+        private bool fileOk = false;
+        private bool sendingFile = false;
+        private string pathToSave = "";
+
         public BSK()
         {
             InitializeComponent();
@@ -33,6 +41,9 @@ namespace BSK_1_MD
             ipAddress = ipHostInfo.AddressList[1];
             savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
+            this.pathToSave = System.IO.Directory.GetCurrentDirectory();
+            progressBarWorker.WorkerSupportsCancellation = true;
+            progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -41,13 +52,20 @@ namespace BSK_1_MD
             try
             {
                 string fileName = selectFileDialog.FileName;
+                this.fileName = fileName;
                 FileInfo fileInfo = new FileInfo(fileName);
+                if (fileInfo.Length > UInt32.MaxValue - 1)
+                {
+                    throw new System.ApplicationException("File to big > 4GB");
+                }
                 double fileSize = fileInfo.Length / Math.Pow(10, 6);
-                logger.addToLogger("[WFA] " + "File:\n " + fileName + "\nSize:\n" + fileSize + " MB");
+                this.fileSize = fileInfo.Length;
+                logger.addToLogger("[WFA] " + "File: " + fileName + " Size: " + fileSize + " MB");
+                sendFileButton.Enabled = true;
             }
             catch (Exception error)
             {
-                logger.addToLogger("[WFA] " + error.ToString());
+                logger.addToLogger("[WFA] " + error.Message);
             }
         }
         private void cipherCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -69,6 +87,10 @@ namespace BSK_1_MD
             }
             tcpClient.Updatevariables(ip, port);
             tcpClient.Connect();
+            if (!tcpClient.ConnectionEstablished)
+            {
+                ChangeVisibilityConnectButton(true);
+            }
         }
 
         #region Logger worker methods
@@ -135,9 +157,10 @@ namespace BSK_1_MD
         {
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
+            tcpServer.DefaultSavePath = this.pathToSave;
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
-            //messageReciverWorker.RunWorkerAsync();
+            messageReciverWorker.RunWorkerAsync();
         }
 
         private void startServerWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -153,51 +176,53 @@ namespace BSK_1_MD
 
         private void StatusText()
         {
-            //if (this.consoleOutputTextBox.InvokeRequired)
-            //{
-            //    StatusTextCallback r = new StatusTextCallback(StatusText);
-            //    this.Invoke(r, new object[] {});
-            //}
-            //else
-            //{
-            //    string text = tcpClient.ConnectedToServer ? "Connected" : "Not connected";
-            //    connectionStatusTextBox.Text = text;
-            //}
+            if (this.consoleOutputTextBox.InvokeRequired)
+            {
+                StatusTextCallback r = new StatusTextCallback(StatusText);
+                this.Invoke(r, new object[] { });
+            }
+            else
+            {
+                string text = tcpClient.ConnectionEstablished ? "Connected" : "Not connected";
+                connectionStatusTextBox.Text = text;
+            }
         }
         private void copyConsoleWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //while (true)
-            //{
-            //   if(tcpClient != null)
-            //    {
-            //        StatusText();
-            //        if (tcpClient.ConnectedToServer)
-            //        {
-            //            break;
-            //        }
-            //    }
-            //}
+            while (true)
+            {
+                if (tcpClient != null)
+                {
+                    StatusText();
+                    Thread.Sleep(20);
+                }
+            }
         }
 
         private void sendTextButton_Click(object sender, EventArgs e)
         {
-            //if (tcpClient.ConnectedToServer)
-            //{
-            //    var text = textToSendTextBox.Text;
-            //    tcpClient.SendMessage(text);
-            //}
+            if (tcpClient.ConnectionEstablished)
+            {
+                var text = textToSendTextBox.Text;
+                if (text.Length != 0)
+                {
+                    if (!this.sendingFile)
+                    {
+                        tcpClient.SendMessage(text);
+                    }
+                }
+            }
         }
 
         private void messageReciverWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //while (true)
-            //{
-            //    if (tcpServer.ServerStarted)
-            //    {
-            //        tcpServer.ReciveMessage();
-            //        System.Threading.Thread.Sleep(50);
-            //    }
-            //}
+            while (true)
+            {
+                if (tcpServer.ServerStarted)
+                {
+                    tcpServer.Recive();
+                }
+            }
         }
 
         private void consoleOutputTextBox_TextChanged(object sender, EventArgs e)
@@ -217,17 +242,113 @@ namespace BSK_1_MD
                 {
                     //fldrDlg.SelectedPath -- your result
                     Console.WriteLine(fldrDlg.SelectedPath);
+                    this.pathToSave = fldrDlg.SelectedPath;
                     savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + fldrDlg.SelectedPath;
+                    if (tcpServer != null)
+                    {
+                        tcpServer.DefaultSavePath = this.pathToSave;
+                    }
                 }
+            }
+        }
+
+        delegate void SetTextToConnectButton(string text);
+        delegate void ChangeVisibilityToConnectButton(bool value);
+
+        private void SetTextConnectButton(string text)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                SetTextToConnectButton setTextToConnectButton = new SetTextToConnectButton(SetTextConnectButton);
+                this.Invoke(setTextToConnectButton, new object[] { text });
+            }
+            else
+            {
+                connectToServerButton.Text = text;
+            }
+        }
+
+        private void ChangeVisibilityConnectButton(bool value)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                ChangeVisibilityToConnectButton changeVisibilityToConnectButton = new ChangeVisibilityToConnectButton(ChangeVisibilityConnectButton);
+                this.Invoke(changeVisibilityToConnectButton, new object[] { value });
+            }
+            else
+            {
+                connectToServerButton.Enabled = value;
             }
         }
 
         private void connectionWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             //To do
-            // verify ip, port 
+            // verify ip, port
+            ChangeVisibilityConnectButton(false);
             startConnections();
+            //toDo
+            //SetTextConnectButton("Disconnect");
+            //ChangeVisibilityConnectButton(true);
+        }
+
+        private void sendFileButton_Click(object sender, EventArgs e)
+        {
+            ChangeProgress(0);
+            sendFileWorker.RunWorkerAsync();
+
+        }
+
+        private void sendFileWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (tcpClient.ConnectionEstablished)
+            {
+                if (this.fileOk)
+                {
+                    this.sendingFile = true;
+                    this.sendTextButton.Enabled = false;
+                    tcpClient.FileSent = false;
+                    progressBarWorker.RunWorkerAsync();
+                    tcpClient.SendFile(this.fileName, this.fileSize);
+                    this.fileOk = false;
+                    this.sendingFile = false;
+                    this.sendTextButton.Enabled = true;
+
+                }
+            }
+        }
+
+        delegate void ProgressHandle(int value);
+
+        private void ChangeProgress(int value)
+        {
+            if (connectToServerButton.InvokeRequired)
+            {
+                ProgressHandle progressHandle = new ProgressHandle(ChangeProgress);
+                this.Invoke(progressHandle, new object[] { value });
+            }
+            else
+            {
+                progressBar1.Value = value;
+            }
+        }
+
+        private void progressBarWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (!tcpClient.FileSent)
+            {
+                var progresValue = tcpClient.ProgressValue;
+                if (progresValue > 0)
+                {
+                    ChangeProgress(progresValue);
+                }
+            }
+        }
+
+        private void selectFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            this.fileOk = true;
         }
     }
 }
