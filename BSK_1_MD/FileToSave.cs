@@ -18,8 +18,10 @@ namespace BSK_1_MD
         private Logger logger;
         private string message = "[FileSave] {0}";
         private FileStream fileStream = null;
+        private string pathToSave = "./";
 
         public uint SizeToAppend { get => sizeToAppend; set => sizeToAppend = value; }
+        public string PathToSave { get => pathToSave; set => pathToSave = value; }
 
         public FileToSave(string name, UInt32 size, ref Logger logger)
         {
@@ -30,15 +32,15 @@ namespace BSK_1_MD
             this.logger = logger;
         }
 
-        public void OpenFile(string path)
+        public void OpenFile()
         {
             try
             {
-               fileStream = File.OpenWrite(path + this.name);
+               fileStream = File.OpenWrite(this.pathToSave + this.name);
             }
             catch(Exception ex)
             {
-                logger.addToLogger(string.Format(message, "Error: " + ex.ToString()));
+                logger.addToLogger(string.Format(message, "Error: " + ex.Message));
             }
 
         }

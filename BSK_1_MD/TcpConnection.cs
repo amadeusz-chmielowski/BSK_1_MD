@@ -95,7 +95,7 @@ namespace BSK_1_MD
             }
             catch (Exception e)
             {
-                logger.addToLogger(string.Format(message, e.ToString()));
+                logger.addToLogger(string.Format(message, e.Message));
             }
         }
 
@@ -155,7 +155,7 @@ namespace BSK_1_MD
             }
             catch (Exception ex)
             {
-                logger.addToLogger(string.Format(message, ex.ToString()));
+                logger.addToLogger(string.Format(message, ex.Message));
             }
             switch (key_)
             {
@@ -169,7 +169,7 @@ namespace BSK_1_MD
                     }
                     catch (Exception ex)
                     {
-                        logger.addToLogger(string.Format(message, ex.ToString()));
+                        logger.addToLogger(string.Format(message, ex.Message));
                     }
                     int bytesSent = socket.Send(bytes, SocketFlags.None);
                     logger.addToLogger(string.Format(message, "Sent " + bytesSent + " bytes."));
@@ -184,7 +184,7 @@ namespace BSK_1_MD
                     }
                     catch (Exception ex)
                     {
-                        logger.addToLogger(string.Format(message, ex.ToString()));
+                        logger.addToLogger(string.Format(message, ex.Message));
                     }
                     fileToRead = new FileToRead(file, Convert.ToUInt32(size), ref logger);
                     fileToRead.OpenFile();
@@ -284,7 +284,7 @@ namespace BSK_1_MD
                 var fileName = match.Groups[1].Value;
                 var fileSize = Convert.ToUInt32(match.Groups[2].Value);
                 fileToSave = new FileToSave(fileName, fileSize, ref logger);
-                fileToSave.OpenFile("./");
+                fileToSave.OpenFile();
                 return messageType.File;
             }
             else
@@ -346,6 +346,21 @@ namespace BSK_1_MD
                 Reciver(bytes, bytesRecivedSize);
             }
 
+        }
+
+        public void UpdateSavePath(string path)
+        {
+            try
+            {
+                if(this.fileToSave != null)
+                {
+                    this.fileToSave.PathToSave = path;
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.addToLogger(string.Format(message, "Error: " + ex.Message));
+            }
         }
     }
 }

@@ -39,7 +39,7 @@ namespace BSK_1_MD
             }
             catch (Exception ex)
             {
-                logger.addToLogger(string.Format(message, "Error: " + ex.ToString()));
+                logger.addToLogger(string.Format(message, "Error: " + ex.Message));
             }
 
         }

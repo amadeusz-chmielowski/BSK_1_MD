@@ -28,6 +28,8 @@ namespace BSK_1_MD
         private long fileSize = 0;
         private bool fileOk = false;
         private bool sendingFile = false;
+        private string pathToSave = "";
+
         public BSK()
         {
             InitializeComponent();
@@ -39,6 +41,7 @@ namespace BSK_1_MD
             ipAddress = ipHostInfo.AddressList[1];
             savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
+            this.pathToSave = System.IO.Directory.GetCurrentDirectory();
             progressBarWorker.WorkerSupportsCancellation = true;
             progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
         }
@@ -51,6 +54,10 @@ namespace BSK_1_MD
                 string fileName = selectFileDialog.FileName;
                 this.fileName = fileName;
                 FileInfo fileInfo = new FileInfo(fileName);
+                if(fileInfo.Length > UInt32.MaxValue - 1)
+                {
+                    throw new System.ApplicationException("File to big > 4GB");
+                }
                 double fileSize = fileInfo.Length / Math.Pow(10, 6);
                 this.fileSize = fileInfo.Length;
                 logger.addToLogger("[WFA] " + "File: " + fileName + " Size: " + fileSize + " MB");
@@ -58,7 +65,7 @@ namespace BSK_1_MD
             }
             catch (Exception error)
             {
-                logger.addToLogger("[WFA] " + error.ToString());
+                logger.addToLogger("[WFA] " + error.Message);
             }
         }
         private void cipherCheckedListBox_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -150,6 +157,7 @@ namespace BSK_1_MD
         {
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
+            tcpServer.UpdateSavePath(pathToSave);
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
             messageReciverWorker.RunWorkerAsync();
@@ -234,8 +242,13 @@ namespace BSK_1_MD
                 {
                     //fldrDlg.SelectedPath -- your result
                     Console.WriteLine(fldrDlg.SelectedPath);
+                    this.pathToSave = fldrDlg.SelectedPath;
                     savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + fldrDlg.SelectedPath;
+                    if(tcpServer != null)
+                    {
+                        tcpServer.UpdateSavePath(this.pathToSave);
+                    }
                 }
             }
         }
