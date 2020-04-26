@@ -13,29 +13,47 @@ namespace BSK_1_MD
         private static Mutex mutex = new Mutex();
         private string name;
         private UInt32 size;
-        private byte[] bytes;
         private UInt32 appendedSize;
         private UInt32 sizeToAppend;
+        private Logger logger;
+        private string message = "[FileSave] {0}";
+        private FileStream fileStream = null;
 
         public uint SizeToAppend { get => sizeToAppend; set => sizeToAppend = value; }
 
-        public FileToSave(string name, UInt32 size)
+        public FileToSave(string name, UInt32 size, ref Logger logger)
         {
             this.name = name;
             this.size = size;
-            this.bytes = new byte[size];
             this.appendedSize = 0;
             this.sizeToAppend = this.size;
+            this.logger = logger;
         }
 
-        public void SaveFile(string path)
+        public void OpenFile(string path)
         {
-            File.WriteAllBytes(path + this.name, this.bytes);
+            try
+            {
+               fileStream = File.OpenWrite(path + this.name);
+            }
+            catch(Exception ex)
+            {
+                logger.addToLogger(string.Format(message, "Error: " + ex.ToString()));
+            }
+
+        }
+
+        public void SaveFile()
+        {
+            fileStream.Close();
         }
 
         public void AppendBytes( byte[] bytes, UInt32 size)
         {
-            Array.Copy(bytes, 0, this.bytes, appendedSize, size);
+            if(fileStream != null)
+            {
+                fileStream.Write(bytes, Convert.ToInt32(appendedSize), Convert.ToInt32(size));
+            }
             appendedSize += size;
             SizeToAppend -= size;
         }

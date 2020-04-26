@@ -32,6 +32,8 @@ namespace BSK_1_MD
         public int ProgressValue { get => progressValue; set => progressValue = value; }
         public bool FileSent { get => fileSent; set => fileSent = value; }
 
+        private FileToRead fileToRead = null;
+
         public TcpClients(string ip, Int32 port, ref Logger logger)
         {
             this.ip = ip;
@@ -131,22 +133,6 @@ namespace BSK_1_MD
             Send(null, "file", file: filePath, size: size);
         }
 
-        private byte[] ReadFile(string filePath)
-        {
-            byte[] bytes;
-            try
-            {
-                // Create a byte array of file stream length
-                bytes = System.IO.File.ReadAllBytes(filePath);
-                return bytes; //return the byte data
-            }
-            catch (Exception ex)
-            {
-                logger.addToLogger(string.Format(message, ex.ToString()));
-                return null;
-            }
-        }
-
         private void Send(byte[] bytes = null, string key_ = null, string file = null, long size = 0)
         {
             bool correct_key = false;
@@ -200,6 +186,8 @@ namespace BSK_1_MD
                     {
                         logger.addToLogger(string.Format(message, ex.ToString()));
                     }
+                    fileToRead = new FileToRead(file, Convert.ToUInt32(size), ref logger);
+                    fileToRead.OpenFile();
                     string preText = "File {0}, size {1} being send" + Environment.NewLine;
                     var preBuffer = ConvertToBytes(string.Format(preText, Path.GetFileName(file), size));
                     byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
@@ -208,32 +196,14 @@ namespace BSK_1_MD
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
-                    //toDo if size is big split file
                     socket.Send(preBufferCorrectSize);
-                    byte[] fileBuffer = ReadFile(file);
-                    if (size > 1000)
-                    {
-                        long partionSize = size / 1000;
-                        int part = Convert.ToInt32(partionSize);
-                        long dataSend = 0;
-                        int i;
-                        for (i = 0; i < part; i++)
-                        {
-                            int dataSendSize = socket.Send(buffer: fileBuffer, offset: i * 1000, size: 1000, socketFlags: SocketFlags.None);
-                            dataSend += dataSendSize;
-                            progressValue = Convert.ToInt32(dataSend / size * 100);
-                        }
-                        long restSize = size - dataSend;
-                        int restData = socket.Send(buffer: fileBuffer, i * 1000, Convert.ToInt32(restSize), socketFlags: SocketFlags.None);
-                        progressValue = Convert.ToInt32(100);
-                    }
-                    else
-                    {
-                        progressValue = 50;
-                        int dataSendSize = socket.Send(fileBuffer);
-                        progressValue = 100;
-                    }
 
+                    while(fileToRead.SizeToRead == 0)
+                    {
+                        byte[] bytesToSend = fileToRead.ReadBytes();
+                        socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
+                        progressValue = Convert.ToInt32((size - fileToRead.SizeToRead) / Convert.ToDouble(size));
+                    }
                     socket.Send(postBufferCorrectSize);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
@@ -312,7 +282,8 @@ namespace BSK_1_MD
                 var match = preTextRegex.Match(message);
                 var fileName = match.Groups[1].Value;
                 var fileSize = Convert.ToUInt32(match.Groups[2].Value);
-                fileToSave = new FileToSave(fileName, fileSize);
+                fileToSave = new FileToSave(fileName, fileSize, ref logger);
+                fileToSave.OpenFile("./");
                 return messageType.File;
             }
             else
@@ -331,7 +302,7 @@ namespace BSK_1_MD
                     int newSize = (bytesRecivedSize - Convert.ToInt32(fileToSave.SizeToAppend));
                     Array.Copy(bytes, fileToSave.SizeToAppend, vs, 0, newSize);
                     fileToSave.AppendBytes(bytes, fileToSave.SizeToAppend);
-                    fileToSave.SaveFile("./");
+                    fileToSave.SaveFile();
                     savingFile = false;
                     Reciver(vs, newSize);
                 }
