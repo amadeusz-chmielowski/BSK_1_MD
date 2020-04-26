@@ -45,7 +45,7 @@ namespace BSK_1_MD
             {
                 var path = this.pathToSave + "/" + this.name;
                 var normalizedPath = NormalizePath(path);
-                fileStream = File.OpenWrite(normalizedPath + this.name);
+                fileStream = File.OpenWrite(normalizedPath);
             }
             catch (Exception ex)
             {
