@@ -31,11 +31,18 @@ namespace BSK_1_MD
             this.logger = logger;
         }
 
+        private static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
+        }
+
         public void OpenFile()
         {
             try
             {
-                fileStream = File.OpenRead(this.name);
+                fileStream = File.OpenRead(NormalizePath(this.name));
             }
             catch (Exception ex)
             {

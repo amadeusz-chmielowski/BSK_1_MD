@@ -54,7 +54,7 @@ namespace BSK_1_MD
                 string fileName = selectFileDialog.FileName;
                 this.fileName = fileName;
                 FileInfo fileInfo = new FileInfo(fileName);
-                if(fileInfo.Length > UInt32.MaxValue - 1)
+                if (fileInfo.Length > UInt32.MaxValue - 1)
                 {
                     throw new System.ApplicationException("File to big > 4GB");
                 }
@@ -245,7 +245,7 @@ namespace BSK_1_MD
                     this.pathToSave = fldrDlg.SelectedPath;
                     savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + fldrDlg.SelectedPath;
-                    if(tcpServer != null)
+                    if (tcpServer != null)
                     {
                         tcpServer.DefaultSavePath = this.pathToSave;
                     }

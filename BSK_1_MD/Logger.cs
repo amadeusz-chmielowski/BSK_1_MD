@@ -29,12 +29,12 @@ namespace BSK_1_MD
         public string popOfLogger()
         {
             string returnText = "";
-            if(loggerList.Count > 0 && loggerList != null)
+            if (loggerList.Count > 0 && loggerList != null)
             {
                 returnText = loggerList.First();
                 loggerList.RemoveAt(0);
             }
-            return returnText;        
+            return returnText;
         }
 
     }

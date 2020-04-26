@@ -198,7 +198,7 @@ namespace BSK_1_MD
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
                     socket.Send(preBufferCorrectSize);
                     Thread.Sleep(10);
-                    while(fileToRead.SizeToRead > 0)
+                    while (fileToRead.SizeToRead > 0)
                     {
                         byte[] bytesToSend = fileToRead.ReadBytes();
                         socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
@@ -344,7 +344,7 @@ namespace BSK_1_MD
         {
             byte[] bytes = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
             if (listener.Available > 0)
-            {  
+            {
                 int bytesRecivedSize;
                 bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
                 Reciver(bytes, bytesRecivedSize);
@@ -356,12 +356,12 @@ namespace BSK_1_MD
         {
             try
             {
-                if(this.fileToSave != null)
+                if (this.fileToSave != null)
                 {
                     this.fileToSave.PathToSave = path;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.addToLogger(string.Format(message, "Error: " + ex.Message));
             }

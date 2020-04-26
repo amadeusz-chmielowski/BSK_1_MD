@@ -32,13 +32,21 @@ namespace BSK_1_MD
             this.logger = logger;
         }
 
+        private static string NormalizePath(string path)
+        {
+            return Path.GetFullPath(new Uri(path).LocalPath)
+                       .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                       .ToUpperInvariant();
+        }
+
         public void OpenFile()
         {
             try
             {
-               fileStream = File.OpenWrite(this.pathToSave + this.name);
+                var normalizedPath = NormalizePath(this.pathToSave);
+                fileStream = File.OpenWrite(normalizedPath + this.name);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.addToLogger(string.Format(message, "Error: " + ex.Message));
             }
@@ -50,9 +58,9 @@ namespace BSK_1_MD
             fileStream.Close();
         }
 
-        public void AppendBytes( byte[] bytes, UInt32 size)
+        public void AppendBytes(byte[] bytes, UInt32 size)
         {
-            if(fileStream != null)
+            if (fileStream != null)
             {
                 fileStream.Write(bytes, 0, Convert.ToInt32(size));
             }
