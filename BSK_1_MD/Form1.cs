@@ -157,7 +157,7 @@ namespace BSK_1_MD
         {
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
-            tcpServer.UpdateSavePath(pathToSave);
+            tcpServer.DefaultSavePath = this.pathToSave;
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
             messageReciverWorker.RunWorkerAsync();
@@ -247,7 +247,7 @@ namespace BSK_1_MD
                 "Path to save files: " + fldrDlg.SelectedPath;
                     if(tcpServer != null)
                     {
-                        tcpServer.UpdateSavePath(this.pathToSave);
+                        tcpServer.DefaultSavePath = this.pathToSave;
                     }
                 }
             }

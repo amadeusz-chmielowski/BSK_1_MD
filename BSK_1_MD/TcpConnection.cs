@@ -221,6 +221,7 @@ namespace BSK_1_MD
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
+        private string defaultSavePath = "./";
         private enum messageType
         {
             Text,
@@ -234,6 +235,8 @@ namespace BSK_1_MD
         private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
         public bool ServerStarted { get => serverStarted; set => serverStarted = value; }
+        public string DefaultSavePath { get => defaultSavePath; set => defaultSavePath = value; }
+
         private bool serverStarted = false;
 
         public TcpServer(Int32 port, ref Logger logger)
@@ -284,6 +287,7 @@ namespace BSK_1_MD
                 var fileName = match.Groups[1].Value;
                 var fileSize = Convert.ToUInt32(match.Groups[2].Value);
                 fileToSave = new FileToSave(fileName, fileSize, ref logger);
+                UpdateSavePath(this.defaultSavePath);
                 fileToSave.OpenFile();
                 return messageType.File;
             }
@@ -348,7 +352,7 @@ namespace BSK_1_MD
 
         }
 
-        public void UpdateSavePath(string path)
+        private void UpdateSavePath(string path)
         {
             try
             {
