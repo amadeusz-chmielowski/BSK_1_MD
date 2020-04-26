@@ -3,3 +3,7 @@
 **/obj/
 */bin/*/*.exe
 */bin/*/*.pdb
+*/bin/
+*/bin
+/bin
+*/bin/*
