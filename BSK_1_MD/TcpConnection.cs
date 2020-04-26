@@ -120,24 +120,24 @@ namespace BSK_1_MD
             return msg;
         }
 
-        public void SendMessage(string message)
+        public void SendMessage(string message_)
         {
             try
             {
 
 
                 Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
-                if (preTextRegex.IsMatch(message))
+                if (preTextRegex.IsMatch(message_))
                 {
                     throw new System.ArgumentException("Text contains forbidden message " + preTextRegex.ToString());
                 }
-                var msg = ConvertToBytes(message);
+                var msg = ConvertToBytes(message_);
                 logger.addToLogger(string.Format(message, "Sending message" + message));
                 Send(msg, "text");
             }
             catch (Exception ex)
             {
-                logger.addToLogger(string.Format(message, "Error" + ex.Message));
+                logger.addToLogger(string.Format(message, "Error " + ex.Message));
             }
         }
 
