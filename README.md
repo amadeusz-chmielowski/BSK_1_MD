@@ -37,3 +37,30 @@ Flow:
 	-check if postBuffer is equal to "File {filename.XXX} sent"
 	No:
 	-recive and encode message, to console.
+
+Cipher:
+
+	Client:
+	- Generate RSA pub and private key
+	- Encrypt rsa keys with SHA-256 function of user-friendly paswd
+	- Recive server RSA.pub key
+	- Generate psuedorandom session key
+	- Encrypt session key with server RSA.pub key
+	- Send to server session key
+	- Set algorithm type, key size, block size, cipher mode, initial vector
+	- Encrypt algorithm type, key size, block size, cipher mode, initial vector with server RSA.pub key
+	- Send to server algorithm type, key size, block size, cipher mode, initial vector
+	- Create encryptor 
+
+
+
+	Server:
+	- Generate RSA pub and private key
+	- Send RSA.pub key to client
+	- Encrypt rsa keys with SHA-256 function of user-friendly paswd
+	- Recive session key
+	- Decrypt session key with RSA priv key
+	- Recive algorithm type, key size, block size, cipher mode, initial vector
+	- Decrypt algorithm type, key size, block size, cipher mode, initial vector with RSA priv 	key
+	- Create algorith decryptor with decrypted data
+

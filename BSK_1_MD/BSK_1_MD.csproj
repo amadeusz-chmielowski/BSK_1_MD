@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cipher.cs" />
     <Compile Include="FileToRead.cs" />
     <Compile Include="FileToSave.cs" />
     <Compile Include="MainWindow.cs">
