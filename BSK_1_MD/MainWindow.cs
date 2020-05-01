@@ -20,7 +20,7 @@ namespace BSK_1_MD
     {
         private string[] cipherBlocks = new[] { "ECB", "OBC", "CFB", "OFB" };
         private Logger logger;
-        private TcpClients tcpClient;
+        private TcpClient tcpClient;
         private TcpServer tcpServer;
         private IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress ipAddress = null;
@@ -83,7 +83,7 @@ namespace BSK_1_MD
             Int32 port = Convert.ToInt32(portBox.Text);
             if (tcpClient == null)
             {
-                tcpClient = new TcpClients(ip, port, ref logger);
+                tcpClient = new TcpClient(ip, port, ref logger);
             }
             tcpClient.Updatevariables(ip, port);
             tcpClient.Connect();
