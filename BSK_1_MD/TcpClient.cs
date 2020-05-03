@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Security;
 
 namespace BSK_1_MD
 {
@@ -20,6 +21,7 @@ namespace BSK_1_MD
         private string ip;
         private Int32 port;
         private Logger logger;
+        private Cipher cipher;
 
         private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
         private Socket socket;
@@ -27,6 +29,7 @@ namespace BSK_1_MD
         private bool connectionAquired = false;
         private int progressValue = 0;
         private bool fileSent = false;
+
 
         public bool ConnectionEstablished { get => connectionAquired; }
         public int ProgressValue { get => progressValue; set => progressValue = value; }
@@ -49,6 +52,15 @@ namespace BSK_1_MD
             {
                 ipEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
             }
+            cipher = new Cipher(ref logger);
+            SecureString secureString = new SecureString();
+            string pass = "1234";
+            for(int i =0; i< pass.Length; i++)
+            {
+                secureString.AppendChar(pass[i]);
+            }
+            cipher.Passwd = secureString;
+            cipher.GenerateAndSaveEncryptedRsaKeys();
         }
 
         public void Connect()
