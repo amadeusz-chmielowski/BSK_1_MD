@@ -69,6 +69,9 @@
             this.connectionWorker = new System.ComponentModel.BackgroundWorker();
             this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
             this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
+            this.passwordLabel = new System.Windows.Forms.Label();
+            this.passwordTextBox = new System.Windows.Forms.TextBox();
+            this.setPasswordButton = new MaterialSkin.Controls.MaterialRaisedButton();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -253,6 +256,9 @@
             // 
             // serverTabPage
             // 
+            this.serverTabPage.Controls.Add(this.setPasswordButton);
+            this.serverTabPage.Controls.Add(this.passwordTextBox);
+            this.serverTabPage.Controls.Add(this.passwordLabel);
             this.serverTabPage.Controls.Add(this.serverStartButton);
             this.serverTabPage.Location = new System.Drawing.Point(4, 24);
             this.serverTabPage.Name = "serverTabPage";
@@ -526,6 +532,36 @@
             this.progressBarWorker.WorkerReportsProgress = true;
             this.progressBarWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.progressBarWorker_DoWork);
             // 
+            // passwordLabel
+            // 
+            this.passwordLabel.AutoSize = true;
+            this.passwordLabel.Location = new System.Drawing.Point(19, 32);
+            this.passwordLabel.Name = "passwordLabel";
+            this.passwordLabel.Size = new System.Drawing.Size(72, 17);
+            this.passwordLabel.TabIndex = 1;
+            this.passwordLabel.Text = "Password";
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Location = new System.Drawing.Point(118, 32);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(218, 23);
+            this.passwordTextBox.TabIndex = 2;
+            // 
+            // setPasswordButton
+            // 
+            this.setPasswordButton.Depth = 0;
+            this.setPasswordButton.Font = new System.Drawing.Font("Consolas", 12F);
+            this.setPasswordButton.Location = new System.Drawing.Point(355, 32);
+            this.setPasswordButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.setPasswordButton.Name = "setPasswordButton";
+            this.setPasswordButton.Primary = true;
+            this.setPasswordButton.Size = new System.Drawing.Size(164, 23);
+            this.setPasswordButton.TabIndex = 3;
+            this.setPasswordButton.Text = "SET";
+            this.setPasswordButton.UseVisualStyleBackColor = true;
+            this.setPasswordButton.Click += new System.EventHandler(this.setPasswordButton_Click);
+            // 
             // BSK
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -543,6 +579,7 @@
             this.clientTextTabPage.ResumeLayout(false);
             this.clientTextTabPage.PerformLayout();
             this.serverTabPage.ResumeLayout(false);
+            this.serverTabPage.PerformLayout();
             this.settingsTabPage.ResumeLayout(false);
             this.settingsTabControl.ResumeLayout(false);
             this.settingsClientTabPage.ResumeLayout(false);
@@ -599,6 +636,9 @@
         private System.ComponentModel.BackgroundWorker connectionWorker;
         private System.ComponentModel.BackgroundWorker sendFileWorker;
         private System.ComponentModel.BackgroundWorker progressBarWorker;
+        private MaterialSkin.Controls.MaterialRaisedButton setPasswordButton;
+        private System.Windows.Forms.TextBox passwordTextBox;
+        private System.Windows.Forms.Label passwordLabel;
     }
 }
 

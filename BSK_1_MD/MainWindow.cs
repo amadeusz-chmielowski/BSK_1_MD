@@ -19,8 +19,10 @@ namespace BSK_1_MD
     public partial class BSK : MaterialForm
     {
         private string[] cipherBlocks = new[] { "ECB", "OBC", "CFB", "OFB" };
+        private string tcpCipherMode;
         private Logger logger;
         private TcpClient tcpClient;
+        private string tcpPasswd;
         private TcpServer tcpServer;
         private IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress ipAddress = null;
@@ -44,6 +46,7 @@ namespace BSK_1_MD
             this.pathToSave = System.IO.Directory.GetCurrentDirectory();
             progressBarWorker.WorkerSupportsCancellation = true;
             progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
+            serverStartButton.Enabled = false;
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -75,6 +78,29 @@ namespace BSK_1_MD
                 cipherCheckedListBox.ItemCheck -= cipherCheckedListBox_ItemCheck;
                 cipherCheckedListBox.SetItemChecked(cipherCheckedListBox.CheckedIndices[0], false);
                 cipherCheckedListBox.ItemCheck += cipherCheckedListBox_ItemCheck;
+                tcpCipherMode = cipherCheckedListBox.SelectedItem.ToString();
+                if (tcpClient != null)
+                {
+                    //update tcp cipher modes
+                    switch (tcpCipherMode)
+                    {
+                        case "ECB":
+                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.ECB;
+                            break;
+                        case "OBC":
+                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.CBC;
+                            break;
+                        case "CFB":
+                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.CFB;
+                            break;
+                        case "OFB":
+                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.OFB;
+                            break;
+
+                    }
+                    tcpClient.UpdateCipher();
+
+                }
             }
         }
         private void startConnections()
@@ -158,6 +184,8 @@ namespace BSK_1_MD
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
             tcpServer.DefaultSavePath = this.pathToSave;
+            tcpServer.NotSecurePasswd = tcpPasswd;
+            tcpServer.Setcipher();
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
             messageReciverWorker.RunWorkerAsync();
@@ -349,6 +377,22 @@ namespace BSK_1_MD
         private void selectFileDialog_FileOk(object sender, CancelEventArgs e)
         {
             this.fileOk = true;
+        }
+
+        private void setPasswordButton_Click(object sender, EventArgs e)
+        {
+            tcpPasswd = passwordTextBox.Text;
+            if(tcpPasswd == "" || tcpPasswd == null)
+            {
+                MessageBox.Show("Wprowadz inne haslo", "Password Error", MessageBoxButtons.OK);
+            }
+            else
+            {
+                //przekazac haslo wyżej do serwera
+                serverStartButton.Enabled = true;
+                setPasswordButton.Enabled = false;
+                passwordTextBox.ReadOnly = true;
+            }
         }
     }
 }

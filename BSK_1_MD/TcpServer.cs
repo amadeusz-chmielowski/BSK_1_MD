@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Security;
 
 namespace BSK_1_MD
 {
@@ -22,6 +23,8 @@ namespace BSK_1_MD
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
+        private Cipher cipher;
+        public string NotSecurePasswd { get; set;}
         private string defaultSavePath = "./";
         private enum messageType
         {
@@ -49,6 +52,27 @@ namespace BSK_1_MD
                 listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             }
             ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
+
+        }
+
+        public void Setcipher()
+        {
+            cipher = new Cipher(ref logger);
+            SecureString secureString = new SecureString();
+            string pass = "1234";
+            if (NotSecurePasswd == null)
+            {
+            }
+            else
+            {
+                pass = NotSecurePasswd;
+            }
+            logger.addToLogger(string.Format(message, "Setting password of RSA keys to " + pass));
+            for (int i = 0; i < pass.Length; i++)
+            {
+                secureString.AppendChar(pass[i]);
+            }
+            cipher.Passwd = secureString;
         }
 
         public void StartServer()

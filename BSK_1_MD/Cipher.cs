@@ -24,18 +24,13 @@ namespace BSK_1_MD
             set
             {
                 CipherMode = value;
-                this.OnCipherModeValueChanged();
             }
         }
         public SecureString Passwd { get; set; }
         private AesSettings aesSettings;
-        private RSA keys;
+        private RSA my_keys;
+        private RSA other_keys;
         private EncryptedRSA encryptedKeys;
-
-        protected virtual void OnCipherModeValueChanged()
-        {
-            throw new NotImplementedException();
-        }
 
         private Aes aes;
 
@@ -93,7 +88,7 @@ namespace BSK_1_MD
             aes = Aes.Create();
             aesSettings = new AesSettings();
             DefaultAesSettings();
-            keys = new RSA();
+            my_keys = new RSA();
             encryptedKeys = new EncryptedRSA();
 
         }
@@ -293,7 +288,7 @@ namespace BSK_1_MD
                     using (StreamWriter sw = new StreamWriter(cs))
                     {
 
-                        sw.Write(keys.PrvKey_s);
+                        sw.Write(my_keys.PrvKey_s);
                     }
                     encryptedKeys.PrvKey = memoryStream.ToArray();
                 }
@@ -302,7 +297,7 @@ namespace BSK_1_MD
                 {
                     using (StreamWriter sw = new StreamWriter(cs))
                     {
-                        sw.Write(keys.PubKey_s);
+                        sw.Write(my_keys.PubKey_s);
                     }
                     encryptedKeys.PubKey = memoryStream.ToArray();
                 }
@@ -318,10 +313,10 @@ namespace BSK_1_MD
         private void SaveRsaEncryptedKeys()
         {
             string rsaPubPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            rsaPubPath += "/rsa/.rsaPub/rsaPub";
+            rsaPubPath += "/rsa"+ DateTime.Now.ToString() +"/.rsaPub/rsaPub";
             rsaPubPath = NormalizePath(rsaPubPath);
             string rsaPrivPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            rsaPrivPath += "/rsa/.rsaPriv/rsaPriv";
+            rsaPrivPath += "/rsa" + DateTime.Now.ToString() + "/.rsaPriv/rsaPriv";
             rsaPrivPath = NormalizePath(rsaPrivPath);
 
             Directory.CreateDirectory(Path.GetDirectoryName(rsaPubPath));
@@ -341,7 +336,7 @@ namespace BSK_1_MD
 
         public void GenerateAndSaveEncryptedRsaKeys()
         {
-            keys = GenerateRsaKeys();
+            my_keys = GenerateRsaKeys();
             EncryptRsaKeys();
             SaveRsaEncryptedKeys();
 
