@@ -40,7 +40,7 @@ namespace BSK_1_MD
             logger = new Logger();
             loggerWorker.RunWorkerAsync();
             copyConsoleWorker.RunWorkerAsync();
-            ipAddress = ipHostInfo.AddressList[1];
+            ipAddress = Helper.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Ethernet).FirstOrDefault();
             savePathLabel.Text = "Ip: " + ipAddress + Environment.NewLine +
                 "Path to save files: " + System.IO.Directory.GetCurrentDirectory();
             this.pathToSave = System.IO.Directory.GetCurrentDirectory();
@@ -103,20 +103,34 @@ namespace BSK_1_MD
                 }
             }
         }
-        private void startConnections()
+        private void startConnections(bool startNewConnection=false)
         {
             string ip = ipBox.Text;
             Int32 port = Convert.ToInt32(portBox.Text);
-            if (tcpClient == null)
+            if (!startNewConnection)
+            {
+                if (tcpClient == null)
+                {
+                    tcpClient = new TcpClient(ip, port, ref logger);
+                }
+                tcpClient.Updatevariables(ip, port);
+                tcpClient.Connect();
+                if (!tcpClient.ConnectionEstablished)
+                {
+                    ChangeVisibilityConnectButton(true);
+                }
+            }
+            else
             {
                 tcpClient = new TcpClient(ip, port, ref logger);
+                tcpClient.Updatevariables(ip, port);
+                tcpClient.Connect();
+                if (!tcpClient.ConnectionEstablished)
+                {
+                    ChangeVisibilityConnectButton(true);
+                }
             }
-            tcpClient.Updatevariables(ip, port);
-            tcpClient.Connect();
-            if (!tcpClient.ConnectionEstablished)
-            {
-                ChangeVisibilityConnectButton(true);
-            }
+
         }
 
         #region Logger worker methods
@@ -211,19 +225,33 @@ namespace BSK_1_MD
             }
             else
             {
-                string text = tcpClient.ConnectionEstablished ? "Connected" : "Not connected";
+                string text = "";
+                if (tcpClient == null)
+                {
+                    text = "Not connected";
+                }
+                else
+                {
+                    text = tcpClient.CheckConnectionStatus() ? "Connected" : "Not connected";
+                }
                 connectionStatusTextBox.Text = text;
             }
         }
+
         private void copyConsoleWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             while (true)
             {
+                StatusText();
                 if (tcpClient != null)
                 {
-                    StatusText();
-                    Thread.Sleep(20);
+                    if (!tcpClient.CheckConnectionStatus())
+                    {
+                        ChangeVisibilityConnectButton(true);
+                        tcpClient = null;
+                    }
                 }
+                Thread.Sleep(20);
             }
         }
 
@@ -317,8 +345,8 @@ namespace BSK_1_MD
             ChangeVisibilityConnectButton(false);
             startConnections();
             //toDo
-            //SetTextConnectButton("Disconnect");
-            //ChangeVisibilityConnectButton(true);
+            SetTextConnectButton("Disconnect");
+            ChangeVisibilityConnectButton(true);
         }
 
         private void sendFileButton_Click(object sender, EventArgs e)
@@ -382,7 +410,7 @@ namespace BSK_1_MD
         private void setPasswordButton_Click(object sender, EventArgs e)
         {
             tcpPasswd = passwordTextBox.Text;
-            if(tcpPasswd == "" || tcpPasswd == null)
+            if (tcpPasswd == "" || tcpPasswd == null)
             {
                 MessageBox.Show("Wprowadz inne haslo", "Password Error", MessageBoxButtons.OK);
             }

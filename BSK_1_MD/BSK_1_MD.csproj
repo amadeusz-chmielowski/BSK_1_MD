@@ -55,6 +55,7 @@
     <Compile Include="Cipher.cs" />
     <Compile Include="FileToRead.cs" />
     <Compile Include="FileToSave.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
