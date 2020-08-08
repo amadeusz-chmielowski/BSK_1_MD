@@ -59,6 +59,12 @@ namespace BSK_1_MD
             //cipher.GenerateAndSaveEncryptedRsaKeys();
         }
 
+        public void CleanAndCloseConnections()
+        {
+            socket.Close();
+
+        }
+
         public void UpdateCipher()
         {
             cipher.CipherMode = cipherMode;
@@ -86,6 +92,31 @@ namespace BSK_1_MD
                 {
                     logger.addToLogger(string.Format(message, "Connection timeout"));
                 }
+            }
+        }
+
+        public bool CheckConnectionStatus()
+        {
+            try
+            {
+                bool part1 = socket.Poll(1000, SelectMode.SelectRead);
+                bool part2 = (socket.Available == 0);
+                if (part1 && part2)
+                {
+                    if (ConnectionEstablished)
+                    {
+                        CleanAndCloseConnections();
+                    }
+                    return false;
+                }
+                else
+                    return true;
+            }
+            catch(Exception)
+            {
+                CleanAndCloseConnections();
+                logger.addToLogger(string.Format(message, "Server terminated connection"));
+                return false;
             }
         }
 

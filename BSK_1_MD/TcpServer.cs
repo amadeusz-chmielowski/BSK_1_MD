@@ -51,7 +51,7 @@ namespace BSK_1_MD
             {
                 listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             }
-            ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
+            ip = Helper.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Ethernet).FirstOrDefault();
 
         }
 
@@ -89,7 +89,7 @@ namespace BSK_1_MD
             logger.addToLogger(string.Format(message, "Waiting for connection..."));
             var result = listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
             manualResetEvent.WaitOne();
-            logger.addToLogger(string.Format(message, "Connected"));
+            logger.addToLogger(string.Format(message, string.Format("Connected to : {0}", listener.RemoteEndPoint.ToString())));
 
         }
 
