@@ -344,9 +344,6 @@ namespace BSK_1_MD
             // verify ip, port
             ChangeVisibilityConnectButton(false);
             startConnections();
-            //toDo
-            SetTextConnectButton("Disconnect");
-            ChangeVisibilityConnectButton(true);
         }
 
         private void sendFileButton_Click(object sender, EventArgs e)
