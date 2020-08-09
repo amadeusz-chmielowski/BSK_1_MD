@@ -31,6 +31,9 @@ namespace BSK_1_MD
         private bool fileOk = false;
         private bool sendingFile = false;
         private string pathToSave = "";
+        private bool restartServer = false;
+        bool reciveData = true;
+
 
         public BSK()
         {
@@ -103,34 +106,41 @@ namespace BSK_1_MD
                 }
             }
         }
-        private void startConnections(bool startNewConnection=false)
+        private void startConnections(bool startNewConnection = false)
         {
             string ip = ipBox.Text;
-            Int32 port = Convert.ToInt32(portBox.Text);
-            if (!startNewConnection)
+            if (Helper.ValidateIpV4Address(ip))
             {
-                if (tcpClient == null)
+                ChangeVisibilityConnectButton(false);
+                Int32 port = Convert.ToInt32(portBox.Text);
+                if (!startNewConnection)
+                {
+                    if (tcpClient == null)
+                    {
+                        tcpClient = new TcpClient(ip, port, ref logger);
+                    }
+                    tcpClient.Updatevariables(ip, port);
+                    tcpClient.Connect();
+                    if (!tcpClient.ConnectionEstablished)
+                    {
+                        ChangeVisibilityConnectButton(true);
+                    }
+                }
+                else
                 {
                     tcpClient = new TcpClient(ip, port, ref logger);
-                }
-                tcpClient.Updatevariables(ip, port);
-                tcpClient.Connect();
-                if (!tcpClient.ConnectionEstablished)
-                {
-                    ChangeVisibilityConnectButton(true);
+                    tcpClient.Updatevariables(ip, port);
+                    tcpClient.Connect();
+                    if (!tcpClient.ConnectionEstablished)
+                    {
+                        ChangeVisibilityConnectButton(true);
+                    }
                 }
             }
             else
             {
-                tcpClient = new TcpClient(ip, port, ref logger);
-                tcpClient.Updatevariables(ip, port);
-                tcpClient.Connect();
-                if (!tcpClient.ConnectionEstablished)
-                {
-                    ChangeVisibilityConnectButton(true);
-                }
+                MessageBox.Show("Please provide correct IP address", "Error", MessageBoxButtons.OK);
             }
-
         }
 
         #region Logger worker methods
@@ -195,6 +205,11 @@ namespace BSK_1_MD
 
         private void serverStartButton_Click(object sender, EventArgs e)
         {
+            StartServer();
+        }
+
+        private void StartServer()
+        {
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
             tcpServer.DefaultSavePath = this.pathToSave;
@@ -203,6 +218,7 @@ namespace BSK_1_MD
             serverStartButton.Enabled = false;
             startServerWorker.RunWorkerAsync(argument: tcpServer);
             messageReciverWorker.RunWorkerAsync();
+            checkServerStatus.RunWorkerAsync();
         }
 
         private void startServerWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -257,14 +273,17 @@ namespace BSK_1_MD
 
         private void sendTextButton_Click(object sender, EventArgs e)
         {
-            if (tcpClient.ConnectionEstablished)
+            if (tcpClient != null)
             {
-                var text = textToSendTextBox.Text;
-                if (text.Length != 0)
+                if (tcpClient.ConnectionEstablished)
                 {
-                    if (!this.sendingFile)
+                    var text = textToSendTextBox.Text;
+                    if (text.Length != 0)
                     {
-                        tcpClient.SendMessage(text);
+                        if (!this.sendingFile)
+                        {
+                            tcpClient.SendMessage(text);
+                        }
                     }
                 }
             }
@@ -272,12 +291,50 @@ namespace BSK_1_MD
 
         private void messageReciverWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            while (true)
+            while (reciveData)
             {
-                if (tcpServer.ServerStarted)
+                if (tcpServer != null)
                 {
-                    tcpServer.Recive();
+                    if (tcpServer.ServerStarted && tcpServer.ServerConnectedToClient)
+                    {
+                        if (tcpServer.CheckConnectionStatus())
+                        {
+                            tcpServer.Recive();
+                        }
+                        else
+                        {
+                            reciveData = false;
+                            restartServer = true;
+                        }
+                    }
                 }
+            }
+        }
+
+        private void RestartServer()
+        {
+            Thread.Sleep(24);
+            tcpServer.StopTimer();
+            startServerWorker.CancelAsync();
+            messageReciverWorker.CancelAsync();
+            checkServerStatus.CancelAsync();
+
+            var result = MessageBox.Show("Client disconnected" + System.Environment.NewLine + "Restart server", "Info", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                tcpServer.ConnectionResetValue = 0;
+                tcpServer.CloseAllSocets();
+                tcpServer = null;
+                StartServer();
+            }
+            else
+            {
+                tcpServer.ConnectionStatus = true;
+                reciveData = true;
+                tcpServer.RestartTimer();
+                startServerWorker.RunWorkerAsync(argument: tcpServer);
+                messageReciverWorker.RunWorkerAsync();
+                checkServerStatus.RunWorkerAsync();
             }
         }
 
@@ -342,7 +399,6 @@ namespace BSK_1_MD
         {
             //To do
             // verify ip, port
-            ChangeVisibilityConnectButton(false);
             startConnections();
         }
 
@@ -355,19 +411,22 @@ namespace BSK_1_MD
 
         private void sendFileWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (tcpClient.ConnectionEstablished)
+            if (tcpClient != null)
             {
-                if (this.fileOk)
+                if (tcpClient.ConnectionEstablished)
                 {
-                    this.sendingFile = true;
-                    this.sendTextButton.Enabled = false;
-                    tcpClient.FileSent = false;
-                    progressBarWorker.RunWorkerAsync();
-                    tcpClient.SendFile(this.fileName, this.fileSize);
-                    this.fileOk = false;
-                    this.sendingFile = false;
-                    this.sendTextButton.Enabled = true;
+                    if (this.fileOk)
+                    {
+                        this.sendingFile = true;
+                        this.sendTextButton.Enabled = false;
+                        tcpClient.FileSent = false;
+                        progressBarWorker.RunWorkerAsync();
+                        tcpClient.SendFile(this.fileName, this.fileSize);
+                        this.fileOk = false;
+                        this.sendingFile = false;
+                        this.sendTextButton.Enabled = true;
 
+                    }
                 }
             }
         }
@@ -418,6 +477,23 @@ namespace BSK_1_MD
                 setPasswordButton.Enabled = false;
                 passwordTextBox.ReadOnly = true;
             }
+        }
+
+        private void checkServerStatus_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                if (restartServer)
+                {
+                    restartServer = false;
+                    break;
+                }
+            }
+        }
+
+        private void checkServerStatus_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            RestartServer();
         }
     }
 }

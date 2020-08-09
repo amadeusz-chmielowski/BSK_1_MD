@@ -72,6 +72,7 @@
             this.connectionWorker = new System.ComponentModel.BackgroundWorker();
             this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
             this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
+            this.checkServerStatus = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -539,6 +540,7 @@
             // 
             // startServerWorker
             // 
+            this.startServerWorker.WorkerSupportsCancellation = true;
             this.startServerWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.startServerWorker_DoWork);
             // 
             // copyConsoleWorker
@@ -547,6 +549,7 @@
             // 
             // messageReciverWorker
             // 
+            this.messageReciverWorker.WorkerSupportsCancellation = true;
             this.messageReciverWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.messageReciverWorker_DoWork);
             // 
             // connectionWorker
@@ -561,6 +564,12 @@
             // 
             this.progressBarWorker.WorkerReportsProgress = true;
             this.progressBarWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.progressBarWorker_DoWork);
+            // 
+            // checkServerStatus
+            // 
+            this.checkServerStatus.WorkerSupportsCancellation = true;
+            this.checkServerStatus.DoWork += new System.ComponentModel.DoWorkEventHandler(this.checkServerStatus_DoWork);
+            this.checkServerStatus.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.checkServerStatus_RunWorkerCompleted);
             // 
             // BSK
             // 
@@ -639,6 +648,7 @@
         private MaterialSkin.Controls.MaterialRaisedButton setPasswordButton;
         private System.Windows.Forms.TextBox passwordTextBox;
         private System.Windows.Forms.Label passwordLabel;
+        private System.ComponentModel.BackgroundWorker checkServerStatus;
     }
 }
 

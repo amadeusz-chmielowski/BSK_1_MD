@@ -11,6 +11,7 @@ using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Security;
+using System.Timers;
 
 namespace BSK_1_MD
 {
@@ -24,8 +25,11 @@ namespace BSK_1_MD
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
         private Cipher cipher;
-        public string NotSecurePasswd { get; set;}
+        public string NotSecurePasswd { get; set; }
         private string defaultSavePath = "./";
+        private static System.Timers.Timer timer;
+        private bool connectionStatus = false;
+        private int connectionResetValue = 0;
         private enum messageType
         {
             Text,
@@ -39,9 +43,13 @@ namespace BSK_1_MD
         private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
 
         public bool ServerStarted { get => serverStarted; set => serverStarted = value; }
+        public bool ServerConnectedToClient { get => serverConnectedToClient; set => serverConnectedToClient = value; }
         public string DefaultSavePath { get => defaultSavePath; set => defaultSavePath = value; }
+        public bool ConnectionStatus { get => connectionStatus; set => connectionStatus = value; }
+        public int ConnectionResetValue { get => connectionResetValue; set => connectionResetValue = value; }
 
         private bool serverStarted = false;
+        private bool serverConnectedToClient = false;
 
         public TcpServer(Int32 port, ref Logger logger)
         {
@@ -49,10 +57,58 @@ namespace BSK_1_MD
             this.logger = logger;
             if (listener == null)
             {
+                LingerOption lingerOption = new LingerOption(false, 0);
                 listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, lingerOption);
+                listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             }
             ip = Helper.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Ethernet).FirstOrDefault();
 
+        }
+
+        public void SetTimer()
+        {
+            timer = new System.Timers.Timer(10000);
+
+            timer.Elapsed += OnTimedEvet;
+            timer.AutoReset = true;
+            timer.Enabled = true;
+        }
+
+        public void RestartTimer()
+        {
+            if (timer != null)
+            {
+                connectionResetValue = 0;
+                if (!timer.Enabled)
+                    timer.Start();
+            }
+        }
+
+        private void OnTimedEvet(object sender, ElapsedEventArgs e)
+        {
+            if (listener.Available > 0)
+            {
+                ConnectionResetValue = 0;
+            }
+            else
+            {
+                if (ConnectionResetValue >= 10)
+                {
+                    ConnectionResetValue = 0;
+                    ConnectionStatus = false;
+                }
+                else
+                {
+                    ConnectionResetValue++;
+                    logger.addToLogger(string.Format(message, "Client not sending data, waiting periods left: " + (10 - connectionResetValue)));
+                }
+            }
+        }
+
+        public void StopTimer()
+        {
+            timer.Stop();
         }
 
         public void Setcipher()
@@ -75,6 +131,20 @@ namespace BSK_1_MD
             cipher.Passwd = secureString;
         }
 
+        public void CloseAllSocets()
+        {
+            try
+            {
+
+            }
+            finally
+            {
+                listener.Close();
+                listener.Dispose();
+                listener = null;
+            }
+        }
+
         public void StartServer()
         {
             serverStarted = true;
@@ -90,6 +160,9 @@ namespace BSK_1_MD
             var result = listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
             manualResetEvent.WaitOne();
             logger.addToLogger(string.Format(message, string.Format("Connected to : {0}", listener.RemoteEndPoint.ToString())));
+            serverConnectedToClient = true;
+            ConnectionStatus = serverConnectedToClient;
+            SetTimer();
 
         }
 
@@ -165,11 +238,17 @@ namespace BSK_1_MD
             }
         }
 
+        public bool CheckConnectionStatus()
+        {
+            return connectionStatus;
+        }
+
         public void Recive()
         {
             byte[] bytes = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
             if (listener.Available > 0)
             {
+                ConnectionResetValue = 0;
                 int bytesRecivedSize;
                 bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
                 Reciver(bytes, bytesRecivedSize);

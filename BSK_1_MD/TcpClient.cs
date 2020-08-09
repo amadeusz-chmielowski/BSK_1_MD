@@ -100,7 +100,7 @@ namespace BSK_1_MD
             try
             {
                 bool part1 = socket.Poll(1000, SelectMode.SelectRead);
-                bool part2 = (socket.Available == 0);
+                bool part2 = socket.Available == 0;
                 if (part1 && part2)
                 {
                     if (ConnectionEstablished)

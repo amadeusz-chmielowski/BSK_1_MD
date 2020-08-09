@@ -28,5 +28,12 @@ namespace BSK_1_MD
             }
             return ipAddrList.ToArray();
         }
+
+        public static bool ValidateIpV4Address(string address)
+        {
+            System.Net.IPAddress iPAddress;
+            bool validateIP = System.Net.IPAddress.TryParse(address, out iPAddress);
+            return validateIP;
+        }
     }
 }
