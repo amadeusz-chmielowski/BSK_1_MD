@@ -544,9 +544,9 @@ namespace BSK_1_MD
             aes.Key = aesSettings.SessionKey;
             aes.Mode = aesSettings.CipherMode;
             aes.Padding = aesSettings.PaddingMode;
-            logger.addToLogger("Session key: " + Encoding.UTF8.GetString(aes.Key));
-            logger.addToLogger("Key size: " + aes.KeySize.ToString());
-            logger.addToLogger("IV: " + Encoding.UTF8.GetString(aes.IV));
+            //logger.addToLogger("Session key: " + Encoding.UTF8.GetString(aes.Key));
+            //logger.addToLogger("Key size: " + aes.KeySize.ToString());
+            //logger.addToLogger("IV: " + Encoding.UTF8.GetString(aes.IV));
         }
 
         private byte[] SerializeAesSettings()

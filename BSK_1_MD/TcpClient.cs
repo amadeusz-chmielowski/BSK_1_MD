@@ -179,7 +179,7 @@ namespace BSK_1_MD
                     throw new System.ArgumentException("Text contains forbidden message " + preTextRegex.ToString());
                 }
                 var msg = ConvertToBytes(message_);
-                logger.addToLogger(string.Format(message, "Sending message" + message));
+                logger.addToLogger(string.Format(message, "Sending message" + message_));
                 Send(msg, "text");
             }
             catch (Exception ex)

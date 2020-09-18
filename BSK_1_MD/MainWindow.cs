@@ -481,7 +481,6 @@ namespace BSK_1_MD
                     if (this.fileOk)
                     {
                         this.sendingFile = true;
-                        this.sendTextButton.Enabled = false;
                         tcpClient.FileSent = false;
                         progressBarWorker.RunWorkerAsync();
                         tcpClient.SendFile(this.fileName, this.fileSize);
