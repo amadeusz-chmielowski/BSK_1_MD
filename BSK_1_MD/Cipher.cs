@@ -440,8 +440,7 @@ namespace BSK_1_MD
         public void SetSessionKey(byte[] key)
         {
             aesSettings.SessionKey = key;
-            logger.addToLogger("Session key: " + Encoding.UTF8.GetString(key));
-            logger.addToLogger("IV: " + Encoding.UTF8.GetString(aes.IV));
+            aesSettings.KeySize = key.Length;
         }
 
         public byte[] EncryptSessionKey(byte[] key)
@@ -544,6 +543,9 @@ namespace BSK_1_MD
             aes.KeySize = aesSettings.KeySize;
             aes.Mode = aesSettings.CipherMode;
             aes.Padding = aesSettings.PaddingMode;
+            logger.addToLogger("Session key: " + Encoding.UTF8.GetString(aes.Key));
+            logger.addToLogger("Key size: " + aes.KeySize.ToString());
+            logger.addToLogger("IV: " + Encoding.UTF8.GetString(aes.IV));
         }
 
         private byte[] SerializeAesSettings()
