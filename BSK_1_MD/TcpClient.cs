@@ -275,15 +275,15 @@ namespace BSK_1_MD
                     }
                     fileToRead = new FileToRead(file, Convert.ToUInt32(size), ref logger);
                     fileToRead.OpenFile();
-                    string preText = "File {0}, size {1} being send" + Environment.NewLine;
-                    var preBuffer = ConvertToBytes(string.Format(preText, Path.GetFileName(file), size));
-                    byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
-                    Array.Copy(preBuffer, preBufferCorrectSize, preBuffer.Length);
+                    string preText1 = "File {0}, size {1} being send" + Environment.NewLine;
+                    var preBuffer1 = ConvertToBytes(string.Format(preText1, Path.GetFileName(file), size));
+                    byte[] preBufferCorrectSize1 = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                    Array.Copy(preBuffer1, preBufferCorrectSize1, preBuffer1.Length);
                     string postText = "File {0} sent";
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
-                    socket.Send(preBufferCorrectSize);
+                    socket.Send(preBufferCorrectSize1);
                     Thread.Sleep(10);
                     while (fileToRead.SizeToRead > 0)
                     {
