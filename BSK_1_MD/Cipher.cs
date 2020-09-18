@@ -31,7 +31,7 @@ namespace BSK_1_MD
             }
         }
         public SecureString Passwd { get; set; }
-        private AesSettings aesSettings;
+        public AesSettings aesSettings;
         private RSA my_keys;
         private RSA other_keys;
         private EncryptedRSA encryptedKeys;
@@ -40,7 +40,7 @@ namespace BSK_1_MD
         private Aes aes;
 
         [Serializable]
-        private struct AesSettings : ISerializable
+        public struct AesSettings : ISerializable
         {
             public int BlockSize { get; set; }
             public int FeedBackSize { get; set; }
@@ -422,11 +422,6 @@ namespace BSK_1_MD
 
         }
 
-        private void EncryptAesSettings()
-        {
-            throw new NotImplementedException();
-        }
-
         public byte[] GenerateSessionKey()
         {
             //using (SHA256 hash = SHA256.Create())
@@ -567,6 +562,36 @@ namespace BSK_1_MD
                 logger.addToLogger(string.Format(message, ex.Message));
                 return null;
             }
+        }
+
+        public byte[] GetAesSettings()
+        {
+            try
+            {
+                return EncryptData(SerializeAesSettings());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void ReciveAesSettings(byte[] data)
+        {
+            try
+            {
+                AesSettings aesSe = DeserializeAesSettings(data);
+                aes.BlockSize = aesSe.BlockSize;
+                aes.FeedbackSize = aesSe.FeedBackSize;
+                aes.IV = aesSe.IV;
+                aes.Mode = aesSe.CipherMode;
+                aes.Padding = aesSe.PaddingMode;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
         }
 
         private AesSettings DeserializeAesSettings(byte[] data)

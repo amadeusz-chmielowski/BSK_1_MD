@@ -174,7 +174,8 @@ namespace BSK_1_MD
 
                 Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
                 Regex preTextRegex2 = new Regex(".*Session key, size (.*) being send" + Environment.NewLine + ".*");
-                if (preTextRegex.IsMatch(message_) || preTextRegex2.IsMatch(message))
+                Regex preTextRegex3 = new Regex(".*Session settings, size (.*) being send" + Environment.NewLine + ".*");
+                if (preTextRegex.IsMatch(message_) || preTextRegex2.IsMatch(message) || preTextRegex3.IsMatch(message))
                 {
                     throw new System.ArgumentException("Text contains forbidden message " + preTextRegex.ToString());
                 }
@@ -199,6 +200,12 @@ namespace BSK_1_MD
             logger.addToLogger(string.Format(message, "Sending encrypted session key"));
             Send(key, "Key", size: key.LongLength);
 
+        }
+
+        public void SendSettings(byte[] data)
+        {
+            logger.addToLogger(string.Format(message, "Sending encrypted session settings"));
+            Send(data, "Settings", size: data.LongLength);
         }
 
         private void Send(byte[] bytes = null, string key_ = null, string file = null, long size = 0)
@@ -286,6 +293,38 @@ namespace BSK_1_MD
                         bytesSent2 = socket.Send(bytes, SocketFlags.None);
                     }
                     logger.addToLogger(string.Format(message, "Sent " + (bytesSend1 + bytesSent2) + " bytes."));
+                    break;
+                case "Settings":
+                    try
+                    {
+                        if (bytes == null)
+                        {
+                            throw new System.ArgumentNullException("Message empty");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.addToLogger(string.Format(message, ex.Message));
+                    }
+                    string preTextSettings = "Session settings, size {0} being send" + Environment.NewLine;
+                    var preBufferSett = ConvertToBytes(string.Format(preTextSettings, size));
+                    byte[] preBufferCorrectSizeSet = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                    Array.Copy(preBufferSett, preBufferCorrectSizeSet, preBufferSett.Length);
+                    int bytesSend3 = 0;
+                    int bytesSent4 = 0;
+                    if (useEncryption)
+                    {
+                        byte[] encrypted_buffor1 = cipher.EncryptData(preBufferCorrectSizeSet);
+                        byte[] encrypted_buffor2 = cipher.EncryptData(bytes);
+                        bytesSent4 = socket.Send(encrypted_buffor1, SocketFlags.None);
+                        bytesSent4 = socket.Send(encrypted_buffor2, SocketFlags.None);
+                    }
+                    else
+                    {
+                        bytesSend1 = socket.Send(preBufferCorrectSizeSet, SocketFlags.None);
+                        bytesSent2 = socket.Send(bytes, SocketFlags.None);
+                    }
+                    logger.addToLogger(string.Format(message, "Sent " + (bytesSend3+ bytesSent4) + " bytes."));
                     break;
                 case "file":
                     try

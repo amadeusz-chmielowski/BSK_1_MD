@@ -74,6 +74,7 @@
             this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
             this.checkServerStatus = new System.ComponentModel.BackgroundWorker();
             this.fullyConnectedCheckerWorker = new System.ComponentModel.BackgroundWorker();
+            this.updateReciverSettingsWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -576,6 +577,10 @@
             // 
             this.fullyConnectedCheckerWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.fullyConnectedCheckerWorker_DoWork);
             // 
+            // updateReciverSettingsWorker
+            // 
+            this.updateReciverSettingsWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.updateReciverSettingsWorker_DoWork);
+            // 
             // BSK
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -655,6 +660,7 @@
         private System.Windows.Forms.Label passwordLabel;
         private System.ComponentModel.BackgroundWorker checkServerStatus;
         private System.ComponentModel.BackgroundWorker fullyConnectedCheckerWorker;
+        private System.ComponentModel.BackgroundWorker updateReciverSettingsWorker;
     }
 }
 

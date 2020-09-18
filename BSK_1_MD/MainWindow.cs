@@ -97,27 +97,32 @@ namespace BSK_1_MD
                 cipherCheckedListBox.SetItemChecked(cipherCheckedListBox.CheckedIndices[0], false);
                 cipherCheckedListBox.ItemCheck += cipherCheckedListBox_ItemCheck;
                 tcpCipherMode = cipherCheckedListBox.SelectedItem.ToString();
-                if (tcpClient != null)
+                if (tcpClient != null && syncComplete)
                 {
+                    System.Security.Cryptography.CipherMode cipherMode = System.Security.Cryptography.CipherMode.ECB;
                     //update tcp cipher modes
                     switch (tcpCipherMode)
                     {
+                      
                         case "ECB":
-                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.ECB;
+                            cipherMode = System.Security.Cryptography.CipherMode.ECB;
                             break;
                         case "OBC":
-                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.CBC;
+                            cipherMode = System.Security.Cryptography.CipherMode.CBC;
                             break;
                         case "CFB":
-                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.CFB;
+                            cipherMode = System.Security.Cryptography.CipherMode.CFB;
                             break;
                         case "OFB":
-                            tcpClient.cipherMode = System.Security.Cryptography.CipherMode.OFB;
+                            cipherMode = System.Security.Cryptography.CipherMode.OFB;
                             break;
 
                     }
-                    tcpClient.UpdateCipher();
+                    tcpClient.cipher.aesSettings.CipherMode = cipherMode;
 
+                    tcpClient.SendSettings(tcpClient.cipher.GetAesSettings());
+                    tcpClient.cipher.UpdateAes();
+                    tcpServer.cipher.UpdateAes();
                 }
             }
         }
@@ -611,6 +616,8 @@ namespace BSK_1_MD
                         tcpClient.UseEncryption(useCiphering);
                         // odblokuj przyciski do wysylania wiadomosci
                         syncComplete = true;
+                        Thread.Sleep(100);
+                        updateReciverSettingsWorker.RunWorkerAsync();
                         EnableDisableSendButtons(buttonStatus: true);
                         break;
 
@@ -658,6 +665,8 @@ namespace BSK_1_MD
                         tcpClient.UseEncryption(useCiphering);
                         // odblokuj przyciski do wysylania wiadomosci
                         syncComplete = true;
+                        Thread.Sleep(100);
+                        updateReciverSettingsWorker.RunWorkerAsync();
                         EnableDisableSendButtons(buttonStatus: true);
                         break;
                     }
@@ -724,5 +733,20 @@ namespace BSK_1_MD
             return false;
         }
 
+        private void updateReciverSettingsWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                if (tcpServer.recivedSettings.recived)
+                {
+                    tcpClient.cipher.ReciveAesSettings(tcpServer.recivedSettings.settingsData);
+                    tcpServer.cipher.ReciveAesSettings(tcpServer.recivedSettings.settingsData);
+                }
+                else
+                {
+                    Thread.Sleep(100);
+                }
+            }
+        }
     }
 }

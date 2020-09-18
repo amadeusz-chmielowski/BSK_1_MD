@@ -21,6 +21,7 @@ namespace BSK_1_MD
         private string message = "[Server] {0}";
         Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
         Regex preTextRegex2 = new Regex(".*Session key, size (.*) being send" + Environment.NewLine + ".*");
+        Regex preTextRegex3 = new Regex(".*Session settings, size (.*) being send" + Environment.NewLine + ".*");
         private Int32 port;
         private Logger logger;
         private Socket listener;
@@ -35,6 +36,15 @@ namespace BSK_1_MD
 
         }
         public RecivedKey recivedKey;
+        public struct RecivedSettings
+        {
+            public byte[] settingsData;
+            public UInt32 size;
+            public bool recived;
+            public int sizeToSave;
+        }
+        public RecivedSettings recivedSettings;
+        public bool recivingSettings = false;
         public Cipher cipher = null;
         public string clientIp;
         public string NotSecurePasswd { get; set; }
@@ -46,7 +56,8 @@ namespace BSK_1_MD
         {
             Text,
             File,
-            Key
+            Key,
+            Settings
         };
 
         private bool savingFile = false;
@@ -214,6 +225,16 @@ namespace BSK_1_MD
                 recivedKey.keyRecived = false;
                 return messageType.Key;
             }
+            else if (preTextRegex3.IsMatch(message))
+            {
+                var match = preTextRegex3.Match(message);
+                var settingsSize = match.Groups[1].Value;
+                recivedSettings.recived = false;
+                recivedSettings.settingsData = new byte[Convert.ToUInt32(settingsSize)];
+                recivedSettings.size = Convert.ToUInt32(settingsSize);
+                recivedSettings.sizeToSave = Convert.ToInt32(recivedSettings.size);
+                return messageType.Settings;
+            }
             else
             {
                 return messageType.Text;
@@ -250,6 +271,20 @@ namespace BSK_1_MD
                     recivingKey = false;
                 }
             }
+            else if (recivingSettings)
+            {
+                if (recivedSettings.size <= Convert.ToUInt32(bytesRecivedSize))
+                {
+                    Array.Copy(bytes, recivedKey.keyToRecive, bytesRecivedSize);
+                    recivedSettings.sizeToSave -= bytesRecivedSize;
+                    if(recivedSettings.sizeToSave == 0)
+                    {
+                        recivedKey.keyRecived = true;
+                        recivingKey = false;
+                    }
+
+                }
+            }
             else
             {
                 switch (TextOrFileDetermination(bytes, ref fileToSave))
@@ -272,6 +307,13 @@ namespace BSK_1_MD
                             var text = Encoding.UTF8.GetString(bytes);
                             logger.addToLogger(string.Format(message, "Message: " + text));
                             recivingKey = true;
+                            break;
+                        }
+                    case messageType.Settings:
+                        {
+                            var text = Encoding.UTF8.GetString(bytes);
+                            logger.addToLogger(string.Format(message, "Message: " + text));
+                            recivingSettings = true;
                             break;
                         }
                 }
