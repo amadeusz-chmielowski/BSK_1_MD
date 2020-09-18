@@ -621,10 +621,12 @@ namespace BSK_1_MD
                         EnableDisableSendButtons(buttonStatus: false);
                         //odbierz plik public_key.rsa
                         string pathToPublicRsa = this.pathToSave + "\\public_key.rsa";
+
+                        FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         while (true)
                         {
                             //check if file recived then break;
-                            if (File.Exists(pathToPublicRsa))
+                            if (File.Exists(pathToPublicRsa) && !IsFileLocked(fileInfo))
                             {
                                 break;
                             }
