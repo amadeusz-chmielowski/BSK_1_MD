@@ -35,6 +35,7 @@ namespace BSK_1_MD
         private RSA my_keys;
         private RSA other_keys;
         private EncryptedRSA encryptedKeys;
+        private byte[] IV = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
         private Aes aes;
 
@@ -293,7 +294,7 @@ namespace BSK_1_MD
             aesSettings.KeySize = 256;
             aesSettings.CipherMode = CipherMode.ECB;
             aesSettings.PaddingMode = PaddingMode.None;
-            aesSettings.IV = aes.IV;
+            aesSettings.IV = IV;
             aesSettings.SessionKey = aes.Key;
             SetAesSettings();
         }
