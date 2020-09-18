@@ -606,6 +606,8 @@ namespace BSK_1_MD
                         tcpServer.cipher.UpdateAes();
                         // ustaw szyfrowanie wiadomosci
                         useCiphering = true;
+                        tcpServer.UseEncryption(useCiphering);
+                        tcpClient.UseEncryption(useCiphering);
                         // odblokuj przyciski do wysylania wiadomosci
                         syncComplete = true;
                         EnableDisableSendButtons(buttonStatus: true);
@@ -645,6 +647,8 @@ namespace BSK_1_MD
                         tcpClient.SendEncryptedSessionKey(encrypted_key);
                         // ustaw szyfrowanie wiadomosci
                         useCiphering = true;
+                        tcpServer.UseEncryption(useCiphering);
+                        tcpClient.UseEncryption(useCiphering);
                         // odblokuj przyciski do wysylania wiadomosci
                         syncComplete = true;
                         EnableDisableSendButtons(buttonStatus: true);
