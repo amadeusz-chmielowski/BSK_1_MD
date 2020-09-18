@@ -33,6 +33,12 @@ namespace BSK_1_MD
         private string pathToSave = "";
         private bool restartServer = false;
         bool reciveData = true;
+        private struct Role
+        {
+            public bool serverMainRole;
+            public bool clientMainRole;
+        }
+        Role role = new Role();
 
 
         public BSK()
@@ -50,6 +56,9 @@ namespace BSK_1_MD
             progressBarWorker.WorkerSupportsCancellation = true;
             progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
             serverStartButton.Enabled = false;
+            
+            role.clientMainRole = false;
+            role.serverMainRole = false;
         }
 
         private void fileSelectButton_Click(object sender, EventArgs e)
@@ -124,6 +133,11 @@ namespace BSK_1_MD
                     if (!tcpClient.ConnectionEstablished)
                     {
                         ChangeVisibilityConnectButton(true);
+                    }
+                    else if(role.clientMainRole)
+                    {
+                        serverStartButton.Enabled = false;
+                        StartServer();
                     }
                 }
                 else
@@ -205,11 +219,15 @@ namespace BSK_1_MD
 
         private void serverStartButton_Click(object sender, EventArgs e)
         {
+            this.role.clientMainRole = false;
+            this.role.serverMainRole = true;
+            connectToServerButton.Enabled = false;
             StartServer();
         }
 
         private void StartServer()
         {
+
             Int32 port = Convert.ToInt32(serverPortBox.Text);
             tcpServer = new TcpServer(port, ref logger);
             tcpServer.DefaultSavePath = this.pathToSave;
@@ -227,6 +245,20 @@ namespace BSK_1_MD
             if (!server.ServerStarted)
             {
                 server.StartServer();
+                while (true)
+                {
+                    if (server.ServerConnectedToClient && role.serverMainRole)
+                    {
+                        ipBox.Text = server.clientIp;
+                        portBox.Text = serverPortBox.Text;
+                        startConnections();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
+                    }
+                }
             }
         }
 
@@ -397,9 +429,11 @@ namespace BSK_1_MD
 
         private void connectionWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            //To do
-            // verify ip, port
+            this.role.clientMainRole = true;
+            this.role.serverMainRole = false;
             startConnections();
+            serverPortBox.Text = portBox.Text;
+            StartServer();
         }
 
         private void sendFileButton_Click(object sender, EventArgs e)

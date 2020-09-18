@@ -25,6 +25,7 @@ namespace BSK_1_MD
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
         private Cipher cipher;
+        public string clientIp;
         public string NotSecurePasswd { get; set; }
         private string defaultSavePath = "./";
         private static System.Timers.Timer timer;
@@ -68,7 +69,7 @@ namespace BSK_1_MD
 
         public void SetTimer()
         {
-            timer = new System.Timers.Timer(10000);
+            timer = new System.Timers.Timer(100000);
 
             timer.Elapsed += OnTimedEvet;
             timer.AutoReset = true;
@@ -161,6 +162,7 @@ namespace BSK_1_MD
             manualResetEvent.WaitOne();
             logger.addToLogger(string.Format(message, string.Format("Connected to : {0}", listener.RemoteEndPoint.ToString())));
             serverConnectedToClient = true;
+            clientIp = listener.RemoteEndPoint.ToString().Split(':')[0];
             ConnectionStatus = serverConnectedToClient;
             SetTimer();
 
