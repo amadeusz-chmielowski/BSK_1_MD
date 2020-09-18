@@ -242,7 +242,9 @@ namespace BSK_1_MD
                     int bytesSent = 0;
                     if (useEncryption)
                     {
-                        byte[] encrypted_buffor0 = cipher.EncryptData(bytes);
+                        byte[] preBufferCorrectSize0 = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                        Array.Copy(bytes, preBufferCorrectSize0, bytes.Length);
+                        byte[] encrypted_buffor0 = cipher.EncryptData(preBufferCorrectSize0);
                         int len1 = encrypted_buffor0.Length;
                         int len2 = bytes.Length;
                         bytesSent = socket.Send(encrypted_buffor0, SocketFlags.None);

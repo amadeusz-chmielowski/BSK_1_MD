@@ -556,7 +556,7 @@ namespace BSK_1_MD
 
         private void checkServerStatus_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            RestartServer();
+            //RestartServer();
         }
 
         private void fullyConnectedCheckerWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -575,6 +575,7 @@ namespace BSK_1_MD
                         //wyslij plik public_key.rsa
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
+                        Thread.Sleep(10);
                         //usuń plik public_key.rsa niezaszyfrowany
                         while (true)
                         {
@@ -644,6 +645,7 @@ namespace BSK_1_MD
                         //usuń plik public_key.rsa niezaszyfrowany
                         bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);
                         // wyslij klucz sesyjny
+                        Thread.Sleep(10);
                         tcpClient.SendEncryptedSessionKey(encrypted_key);
                         // ustaw szyfrowanie wiadomosci
                         useCiphering = true;

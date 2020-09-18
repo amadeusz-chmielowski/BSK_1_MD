@@ -292,7 +292,7 @@ namespace BSK_1_MD
             aesSettings.FeedBackSize = 128;
             aesSettings.KeySize = 256;
             aesSettings.CipherMode = CipherMode.ECB;
-            aesSettings.PaddingMode = PaddingMode.Zeros;
+            aesSettings.PaddingMode = PaddingMode.None;
             aesSettings.IV = aes.IV;
             aesSettings.SessionKey = aes.Key;
             SetAesSettings();
