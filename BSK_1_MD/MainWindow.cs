@@ -574,17 +574,17 @@ namespace BSK_1_MD
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
                         //usuń plik public_key.rsa niezaszyfrowany
-                        while (true)
-                        {
-                            if (!IsFileLocked(fileInfo))
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                Thread.Sleep(10);
-                            }
-                        }
+                        //while (true)
+                        //{
+                        //    if (!IsFileLocked(fileInfo))
+                        //    {
+                        //        break;
+                        //    }
+                        //    else
+                        //    {
+                        //        Thread.Sleep(10);
+                        //    }
+                        //}
                         string file = tcpServer.cipher.ReadFileIntoString(pathToPublicRsa);
                         tcpServer.cipher.ImportPublicKey(file);
                         bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);

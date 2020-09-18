@@ -265,6 +265,7 @@ namespace BSK_1_MD
 
                 RSACryptoServiceProvider csp = new RSACryptoServiceProvider();// cspParams);
                 csp.ImportParameters(rsaParams);
+                other_keys.PubKey = csp.ExportParameters(false);
                 return csp;
             }
             catch(Exception ex)
