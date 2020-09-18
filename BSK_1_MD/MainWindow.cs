@@ -575,7 +575,7 @@ namespace BSK_1_MD
                         //wyslij plik public_key.rsa
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
-                        Thread.Sleep(10);
+                        Thread.Sleep(20);
                         //usuń plik public_key.rsa niezaszyfrowany
                         while (true)
                         {
@@ -623,6 +623,7 @@ namespace BSK_1_MD
                         string pathToPublicRsa = this.pathToSave + "\\public_key.rsa";
 
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
+                        Thread.Sleep(50);
                         while (true)
                         {
                             //check if file recived then break;

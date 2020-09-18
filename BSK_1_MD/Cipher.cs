@@ -438,7 +438,7 @@ namespace BSK_1_MD
         public void SetSessionKey(byte[] key)
         {
             aesSettings.SessionKey = key;
-            logger.addToLogger("Session key: " + key.ToString());
+            logger.addToLogger("Session key: " + Encoding.UTF8.GetString(key));
         }
 
         public byte[] EncryptSessionKey(byte[] key)
