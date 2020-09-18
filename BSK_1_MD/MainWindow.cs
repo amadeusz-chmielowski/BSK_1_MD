@@ -641,6 +641,7 @@ namespace BSK_1_MD
                         //wygeneruj klucz sesyjny
                         byte[] key = tcpClient.cipher.GenerateSessionKey();
                         tcpServer.cipher.SetSessionKey(key);
+                        tcpClient.cipher.SetSessionKey(key);
                         tcpServer.cipher.UpdateAes();
                         tcpClient.cipher.UpdateAes();
                         //zaszyfruj klucz sesyjny za pomoca public_key.rsa serwera
