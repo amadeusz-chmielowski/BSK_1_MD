@@ -342,6 +342,32 @@ namespace BSK_1_MD
 
         }
 
+        public string SavePublicRsaKey()
+        {
+            string path = @"c:\temp\public_key.rsa";
+
+            // This text is added only once to the file.
+            if (!File.Exists(path))
+            {
+                if (my_keys.PubKey_s.Length > 0)
+                {
+                    File.WriteAllText(path, my_keys.PubKey_s);
+                    return path;
+                }
+            }
+            else
+            {
+                File.Delete(path);
+                if (my_keys.PubKey_s.Length > 0)
+                {
+                    File.WriteAllText(path, my_keys.PubKey_s);
+                    return path;
+                }
+            }
+            return path;
+
+        }
+
         private void EncryptAesSettings()
         {
             throw new NotImplementedException();

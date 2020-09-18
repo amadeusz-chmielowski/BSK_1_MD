@@ -567,26 +567,39 @@ namespace BSK_1_MD
                     if (role.serverMainRole)
                     {
                         //zablokuj przyciski na chwile do wysylania
+                        EnableDisableSendButtons(buttonStatus: false);
                         //wygeneruj public_key.rsa private_key.rsa zaszyfrowane i public_key.rsa niezaszyfrowane
+                        string pathToPublicRsa = tcpServer.GenerateRsaKeys();
                         //wyslij plik public_key.rsa
+                        FileInfo fileInfo = new FileInfo(pathToPublicRsa);
+                        tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
                         //usuń plik public_key.rsa niezaszyfrowany
+                        bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);
                         // odbierz zaszyfrowany klucz sesyjny
                         // odszyfruj klucz przy pomocy private_key.rsa 
                         // ustaw szyfrowanie wiadomosci
                         // odblokuj przyciski do wysylania wiadomosci
+                        EnableDisableSendButtons(buttonStatus: true);
                         break;
 
                     }
                     if (role.clientMainRole)
                     {
                         //zablokuj przyciski na chwile do wysylania
+                        EnableDisableSendButtons(buttonStatus: false);
                         //odbierz plik public_key.rsa
+                        while (true)
+                        {
+                            //check if file recived then break;
+                            int a = 0;
+                        }
                         //wygeneruj klucz sesyjny
                         //zaszyfruj klucz sesyjny za pomoca public_key.rsa serwera
                         //usuń plik public_key.rsa niezaszyfrowany
                         // wyslij klucz sesyjny
                         // ustaw szyfrowanie wiadomosci
                         // odblokuj przyciski do wysylania wiadomosci 
+                        EnableDisableSendButtons(buttonStatus: true);
                         break;
                     }
                 }
@@ -597,7 +610,38 @@ namespace BSK_1_MD
             }
         }
 
+        delegate void EnableDisableSendButtonsHandle(bool value);
 
+        private void EnableDisableSendButtons(bool buttonStatus)
+        {
+            if (sendFileButton.InvokeRequired)
+            {
+                EnableDisableSendButtonsHandle enableDisableSendButtonsHandle = new EnableDisableSendButtonsHandle(EnableDisableSendButtons);
+                this.Invoke(enableDisableSendButtonsHandle, new object[] { buttonStatus });
+            }
+            else
+            {
+                sendFileButton.Enabled = buttonStatus;
+            }
+            if (sendTextButton.InvokeRequired)
+            {
+                EnableDisableSendButtonsHandle enableDisableSendButtonsHandle = new EnableDisableSendButtonsHandle(EnableDisableSendButtons);
+                this.Invoke(enableDisableSendButtonsHandle, new object[] { buttonStatus });
+            }
+            else
+            {
+                sendTextButton.Enabled = buttonStatus;
+            }
+            if (fileSelectButton.InvokeRequired)
+            {
+                EnableDisableSendButtonsHandle enableDisableSendButtonsHandle = new EnableDisableSendButtonsHandle(EnableDisableSendButtons);
+                this.Invoke(enableDisableSendButtonsHandle, new object[] { buttonStatus });
+            }
+            else
+            {
+                fileSelectButton.Enabled = buttonStatus;
+            }
+        }
 
     }
 }

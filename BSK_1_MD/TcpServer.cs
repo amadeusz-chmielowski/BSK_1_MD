@@ -12,6 +12,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Security;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace BSK_1_MD
 {
@@ -24,7 +25,7 @@ namespace BSK_1_MD
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
-        private Cipher cipher;
+        private Cipher cipher = null;
         public string clientIp;
         public string NotSecurePasswd { get; set; }
         private string defaultSavePath = "./";
@@ -271,6 +272,40 @@ namespace BSK_1_MD
             {
                 logger.addToLogger(string.Format(message, "Error: " + ex.Message));
             }
+        }
+
+        public string GenerateRsaKeys()
+        {
+            string returnPath = "";
+            if(cipher != null)
+            {
+                cipher.GenerateAndSaveEncryptedRsaKeys();
+                returnPath = cipher.SavePublicRsaKey();
+            }
+
+            return returnPath;
+        }
+
+        public bool DeletePublicRsaKey(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                    return true;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+
         }
     }
 }
