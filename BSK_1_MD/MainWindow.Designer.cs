@@ -73,6 +73,7 @@
             this.sendFileWorker = new System.ComponentModel.BackgroundWorker();
             this.progressBarWorker = new System.ComponentModel.BackgroundWorker();
             this.checkServerStatus = new System.ComponentModel.BackgroundWorker();
+            this.fullyConnectedCheckerWorker = new System.ComponentModel.BackgroundWorker();
             this.mainTabControl.SuspendLayout();
             this.clientTabPage.SuspendLayout();
             this.clientTabConrol.SuspendLayout();
@@ -109,10 +110,10 @@
             this.clientTabPage.Controls.Add(this.progressBar1);
             this.clientTabPage.Controls.Add(this.materialTabSelector2);
             this.clientTabPage.Controls.Add(this.clientTabConrol);
-            this.clientTabPage.Location = new System.Drawing.Point(4, 21);
+            this.clientTabPage.Location = new System.Drawing.Point(4, 24);
             this.clientTabPage.Margin = new System.Windows.Forms.Padding(0);
             this.clientTabPage.Name = "clientTabPage";
-            this.clientTabPage.Size = new System.Drawing.Size(692, 284);
+            this.clientTabPage.Size = new System.Drawing.Size(692, 281);
             this.clientTabPage.TabIndex = 0;
             this.clientTabPage.Text = "Client";
             this.clientTabPage.UseVisualStyleBackColor = true;
@@ -146,7 +147,7 @@
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.progressBar1.Location = new System.Drawing.Point(0, 262);
+            this.progressBar1.Location = new System.Drawing.Point(0, 259);
             this.progressBar1.Maximum = 1000;
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(692, 22);
@@ -182,10 +183,10 @@
             // 
             this.clientFileTabPage.Controls.Add(this.sendFileButton);
             this.clientFileTabPage.Controls.Add(this.fileSelectButton);
-            this.clientFileTabPage.Location = new System.Drawing.Point(4, 21);
+            this.clientFileTabPage.Location = new System.Drawing.Point(4, 24);
             this.clientFileTabPage.Name = "clientFileTabPage";
             this.clientFileTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.clientFileTabPage.Size = new System.Drawing.Size(574, 194);
+            this.clientFileTabPage.Size = new System.Drawing.Size(574, 191);
             this.clientFileTabPage.TabIndex = 0;
             this.clientFileTabPage.Text = "File";
             this.clientFileTabPage.UseVisualStyleBackColor = true;
@@ -223,10 +224,10 @@
             // 
             this.clientTextTabPage.Controls.Add(this.textToSendTextBox);
             this.clientTextTabPage.Controls.Add(this.sendTextButton);
-            this.clientTextTabPage.Location = new System.Drawing.Point(4, 21);
+            this.clientTextTabPage.Location = new System.Drawing.Point(4, 24);
             this.clientTextTabPage.Name = "clientTextTabPage";
             this.clientTextTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.clientTextTabPage.Size = new System.Drawing.Size(574, 194);
+            this.clientTextTabPage.Size = new System.Drawing.Size(574, 191);
             this.clientTextTabPage.TabIndex = 1;
             this.clientTextTabPage.Text = "Text";
             this.clientTextTabPage.UseVisualStyleBackColor = true;
@@ -261,10 +262,10 @@
             this.serverTabPage.Controls.Add(this.passwordTextBox);
             this.serverTabPage.Controls.Add(this.passwordLabel);
             this.serverTabPage.Controls.Add(this.serverStartButton);
-            this.serverTabPage.Location = new System.Drawing.Point(4, 21);
+            this.serverTabPage.Location = new System.Drawing.Point(4, 24);
             this.serverTabPage.Name = "serverTabPage";
             this.serverTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.serverTabPage.Size = new System.Drawing.Size(692, 284);
+            this.serverTabPage.Size = new System.Drawing.Size(692, 281);
             this.serverTabPage.TabIndex = 1;
             this.serverTabPage.Text = "Server";
             this.serverTabPage.UseVisualStyleBackColor = true;
@@ -287,7 +288,7 @@
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(118, 32);
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(218, 20);
+            this.passwordTextBox.Size = new System.Drawing.Size(218, 23);
             this.passwordTextBox.TabIndex = 2;
             // 
             // passwordLabel
@@ -295,7 +296,7 @@
             this.passwordLabel.AutoSize = true;
             this.passwordLabel.Location = new System.Drawing.Point(19, 32);
             this.passwordLabel.Name = "passwordLabel";
-            this.passwordLabel.Size = new System.Drawing.Size(55, 13);
+            this.passwordLabel.Size = new System.Drawing.Size(72, 17);
             this.passwordLabel.TabIndex = 1;
             this.passwordLabel.Text = "Password";
             // 
@@ -317,10 +318,10 @@
             // 
             this.settingsTabPage.Controls.Add(this.materialTabSelector3);
             this.settingsTabPage.Controls.Add(this.settingsTabControl);
-            this.settingsTabPage.Location = new System.Drawing.Point(4, 21);
+            this.settingsTabPage.Location = new System.Drawing.Point(4, 24);
             this.settingsTabPage.Name = "settingsTabPage";
             this.settingsTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsTabPage.Size = new System.Drawing.Size(692, 284);
+            this.settingsTabPage.Size = new System.Drawing.Size(692, 281);
             this.settingsTabPage.TabIndex = 2;
             this.settingsTabPage.Text = "Settings";
             this.settingsTabPage.UseVisualStyleBackColor = true;
@@ -357,10 +358,10 @@
             this.settingsClientTabPage.Controls.Add(this.ipBox);
             this.settingsClientTabPage.Controls.Add(this.portLabel);
             this.settingsClientTabPage.Controls.Add(this.ipLabel);
-            this.settingsClientTabPage.Location = new System.Drawing.Point(4, 21);
+            this.settingsClientTabPage.Location = new System.Drawing.Point(4, 24);
             this.settingsClientTabPage.Name = "settingsClientTabPage";
             this.settingsClientTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsClientTabPage.Size = new System.Drawing.Size(686, 210);
+            this.settingsClientTabPage.Size = new System.Drawing.Size(686, 207);
             this.settingsClientTabPage.TabIndex = 0;
             this.settingsClientTabPage.Text = "Client";
             this.settingsClientTabPage.UseVisualStyleBackColor = true;
@@ -370,7 +371,7 @@
             this.portBox.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.portBox.Location = new System.Drawing.Point(86, 59);
             this.portBox.Name = "portBox";
-            this.portBox.Size = new System.Drawing.Size(110, 26);
+            this.portBox.Size = new System.Drawing.Size(110, 31);
             this.portBox.TabIndex = 3;
             this.portBox.Text = "810";
             // 
@@ -379,7 +380,7 @@
             this.ipBox.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ipBox.Location = new System.Drawing.Point(86, 22);
             this.ipBox.Name = "ipBox";
-            this.ipBox.Size = new System.Drawing.Size(110, 26);
+            this.ipBox.Size = new System.Drawing.Size(110, 31);
             this.ipBox.TabIndex = 2;
             this.ipBox.Text = "127.0.0.1";
             // 
@@ -413,10 +414,10 @@
             this.settingsServerTabPage.Controls.Add(this.pathSelectorButton);
             this.settingsServerTabPage.Controls.Add(this.serverPortBox);
             this.settingsServerTabPage.Controls.Add(this.serverPortLabel);
-            this.settingsServerTabPage.Location = new System.Drawing.Point(4, 21);
+            this.settingsServerTabPage.Location = new System.Drawing.Point(4, 24);
             this.settingsServerTabPage.Name = "settingsServerTabPage";
             this.settingsServerTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsServerTabPage.Size = new System.Drawing.Size(686, 210);
+            this.settingsServerTabPage.Size = new System.Drawing.Size(686, 207);
             this.settingsServerTabPage.TabIndex = 1;
             this.settingsServerTabPage.Text = "Server";
             this.settingsServerTabPage.UseVisualStyleBackColor = true;
@@ -452,7 +453,7 @@
             this.serverPortBox.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.serverPortBox.Location = new System.Drawing.Point(89, 22);
             this.serverPortBox.Name = "serverPortBox";
-            this.serverPortBox.Size = new System.Drawing.Size(110, 26);
+            this.serverPortBox.Size = new System.Drawing.Size(110, 31);
             this.serverPortBox.TabIndex = 5;
             this.serverPortBox.Text = "810";
             // 
@@ -471,10 +472,10 @@
             // settingsGeneralTabPage
             // 
             this.settingsGeneralTabPage.Controls.Add(this.cipherCheckedListBox);
-            this.settingsGeneralTabPage.Location = new System.Drawing.Point(4, 21);
+            this.settingsGeneralTabPage.Location = new System.Drawing.Point(4, 24);
             this.settingsGeneralTabPage.Name = "settingsGeneralTabPage";
             this.settingsGeneralTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsGeneralTabPage.Size = new System.Drawing.Size(686, 210);
+            this.settingsGeneralTabPage.Size = new System.Drawing.Size(686, 207);
             this.settingsGeneralTabPage.TabIndex = 2;
             this.settingsGeneralTabPage.Text = "General";
             this.settingsGeneralTabPage.UseVisualStyleBackColor = true;
@@ -487,17 +488,17 @@
             this.cipherCheckedListBox.FormattingEnabled = true;
             this.cipherCheckedListBox.Location = new System.Drawing.Point(3, 3);
             this.cipherCheckedListBox.Name = "cipherCheckedListBox";
-            this.cipherCheckedListBox.Size = new System.Drawing.Size(680, 204);
+            this.cipherCheckedListBox.Size = new System.Drawing.Size(680, 201);
             this.cipherCheckedListBox.TabIndex = 0;
             this.cipherCheckedListBox.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.cipherCheckedListBox_ItemCheck);
             // 
             // consoleTabPage
             // 
             this.consoleTabPage.Controls.Add(this.consoleOutputTextBox);
-            this.consoleTabPage.Location = new System.Drawing.Point(4, 21);
+            this.consoleTabPage.Location = new System.Drawing.Point(4, 24);
             this.consoleTabPage.Name = "consoleTabPage";
             this.consoleTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.consoleTabPage.Size = new System.Drawing.Size(692, 284);
+            this.consoleTabPage.Size = new System.Drawing.Size(692, 281);
             this.consoleTabPage.TabIndex = 3;
             this.consoleTabPage.Text = "Console";
             this.consoleTabPage.UseVisualStyleBackColor = true;
@@ -513,7 +514,7 @@
             this.consoleOutputTextBox.Name = "consoleOutputTextBox";
             this.consoleOutputTextBox.ReadOnly = true;
             this.consoleOutputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.consoleOutputTextBox.Size = new System.Drawing.Size(686, 278);
+            this.consoleOutputTextBox.Size = new System.Drawing.Size(686, 275);
             this.consoleOutputTextBox.TabIndex = 0;
             this.consoleOutputTextBox.TextChanged += new System.EventHandler(this.consoleOutputTextBox_TextChanged);
             // 
@@ -571,9 +572,13 @@
             this.checkServerStatus.DoWork += new System.ComponentModel.DoWorkEventHandler(this.checkServerStatus_DoWork);
             this.checkServerStatus.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.checkServerStatus_RunWorkerCompleted);
             // 
+            // fullyConnectedCheckerWorker
+            // 
+            this.fullyConnectedCheckerWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.fullyConnectedCheckerWorker_DoWork);
+            // 
             // BSK
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(5F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(700, 422);
             this.Controls.Add(this.materialTabSelector1);
@@ -649,6 +654,7 @@
         private System.Windows.Forms.TextBox passwordTextBox;
         private System.Windows.Forms.Label passwordLabel;
         private System.ComponentModel.BackgroundWorker checkServerStatus;
+        private System.ComponentModel.BackgroundWorker fullyConnectedCheckerWorker;
     }
 }
 

@@ -35,6 +35,7 @@ namespace BSK_1_MD
         bool reciveData = true;
         private string clientIp = null;
         private Int32 clientPort = 0;
+        private bool fullyConnected = false;
         private struct Role
         {
             public bool serverMainRole;
@@ -58,6 +59,7 @@ namespace BSK_1_MD
             progressBarWorker.WorkerSupportsCancellation = true;
             progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
             serverStartButton.Enabled = false;
+            fullyConnectedCheckerWorker.RunWorkerAsync();
             
             role.clientMainRole = false;
             role.serverMainRole = false;
@@ -150,6 +152,10 @@ namespace BSK_1_MD
                         {
                             serverStartButton.Enabled = false;
                             StartServer();
+                        }
+                        if (role.serverMainRole)
+                        {
+                            fullyConnected = true;
                         }
                     }
                 }
@@ -265,6 +271,18 @@ namespace BSK_1_MD
                         clientIp = server.clientIp;
                         clientPort = Convert.ToInt32(serverPortBox.Text);
                         startConnections();
+                        break;
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
+                    }
+                }
+                while (true)
+                {
+                    if (server.ServerConnectedToClient && role.clientMainRole)
+                    {
+                        fullyConnected = true;
                         break;
                     }
                     else
@@ -541,5 +559,48 @@ namespace BSK_1_MD
         {
             RestartServer();
         }
+
+        private void fullyConnectedCheckerWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                if (fullyConnected)
+                {
+                    //fazy szyfrowania i wymiany public key
+                    if (role.serverMainRole)
+                    {
+                        //zablokuj przyciski na chwile do wysylania
+                        //wygeneruj public_key.rsa private_key.rsa zaszyfrowane i public_key.rsa niezaszyfrowane
+                        //wyslij plik public_key.rsa
+                        //usuń plik public_key.rsa niezaszyfrowany
+                        // odbierz zaszyfrowany klucz sesyjny
+                        // odszyfruj klucz przy pomocy private_key.rsa 
+                        // ustaw szyfrowanie wiadomosci
+                        // odblokuj przyciski do wysylania wiadomosci
+                        break;
+
+                    }
+                    if (role.clientMainRole)
+                    {
+                        //zablokuj przyciski na chwile do wysylania
+                        //odbierz plik public_key.rsa
+                        //wygeneruj klucz sesyjny
+                        //zaszyfruj klucz sesyjny za pomoca public_key.rsa serwera
+                        //usuń plik public_key.rsa niezaszyfrowany
+                        // wyslij klucz sesyjny
+                        // ustaw szyfrowanie wiadomosci
+                        // odblokuj przyciski do wysylania wiadomosci 
+                        break;
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(10);
+                }
+            }
+        }
+
+
+
     }
 }
