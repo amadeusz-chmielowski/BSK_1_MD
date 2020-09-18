@@ -25,7 +25,7 @@ namespace BSK_1_MD
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
-        private Cipher cipher = null;
+        public Cipher cipher = null;
         public string clientIp;
         public string NotSecurePasswd { get; set; }
         private string defaultSavePath = "./";

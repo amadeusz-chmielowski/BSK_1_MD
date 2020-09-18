@@ -574,6 +574,19 @@ namespace BSK_1_MD
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
                         //usuń plik public_key.rsa niezaszyfrowany
+                        while (true)
+                        {
+                            if (!IsFileLocked(fileInfo))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                Thread.Sleep(10);
+                            }
+                        }
+                        string file = tcpServer.cipher.ReadFileIntoString(pathToPublicRsa);
+                        tcpServer.cipher.ImportPublicKey(file);
                         bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);
                         // odbierz zaszyfrowany klucz sesyjny
                         // odszyfruj klucz przy pomocy private_key.rsa 
@@ -641,6 +654,28 @@ namespace BSK_1_MD
             {
                 fileSelectButton.Enabled = buttonStatus;
             }
+        }
+
+        private bool IsFileLocked(FileInfo file)
+        {
+            try
+            {
+                using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+
+            //file is not locked
+            return false;
         }
 
     }

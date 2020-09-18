@@ -8,6 +8,10 @@ using System.Security;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Security;
 
 namespace BSK_1_MD
 {
@@ -201,6 +205,7 @@ namespace BSK_1_MD
             {
                 var writer = new BinaryWriter(stream);
                 writer.Write((byte)0x30); // SEQUENCE
+
                 using (var innerStream = new MemoryStream())
                 {
                     var innerWriter = new BinaryWriter(innerStream);
@@ -248,6 +253,36 @@ namespace BSK_1_MD
             }
 
             return outputStream.ToString();
+        }
+
+        public RSACryptoServiceProvider ImportPublicKey(string pem)
+        {
+            try
+            {
+                PemReader pr = new PemReader(new StringReader(pem));
+                AsymmetricKeyParameter publicKey = (AsymmetricKeyParameter)pr.ReadObject();
+                RSAParameters rsaParams = DotNetUtilities.ToRSAParameters((RsaKeyParameters)publicKey);
+
+                RSACryptoServiceProvider csp = new RSACryptoServiceProvider();// cspParams);
+                csp.ImportParameters(rsaParams);
+                return csp;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+
+        }
+
+        public string ReadFileIntoString(string path)
+        {
+            if (File.Exists(path))
+            {
+                string readText = File.ReadAllText(path);
+                return readText;
+            }
+            return null;
         }
 
         private void DefaultAesSettings()
