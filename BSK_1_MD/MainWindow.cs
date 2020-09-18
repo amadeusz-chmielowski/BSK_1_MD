@@ -33,6 +33,8 @@ namespace BSK_1_MD
         private string pathToSave = "";
         private bool restartServer = false;
         bool reciveData = true;
+        private string clientIp = null;
+        private Int32 clientPort = 0;
         private struct Role
         {
             public bool serverMainRole;
@@ -118,15 +120,23 @@ namespace BSK_1_MD
         private void startConnections(bool startNewConnection = false)
         {
             string ip = ipBox.Text;
+            if(clientIp == null)
+            {
+                clientIp = ip;
+            }
             if (Helper.ValidateIpV4Address(ip))
             {
                 ChangeVisibilityConnectButton(false);
                 Int32 port = Convert.ToInt32(portBox.Text);
+                if(clientPort == 0)
+                {
+                    clientPort = port;
+                }
                 if (!startNewConnection)
                 {
                     if (tcpClient == null)
                     {
-                        tcpClient = new TcpClient(ip, port, ref logger);
+                        tcpClient = new TcpClient(clientIp, clientPort, ref logger);
                     }
                     tcpClient.Updatevariables(ip, port);
                     tcpClient.Connect();
@@ -249,8 +259,8 @@ namespace BSK_1_MD
                 {
                     if (server.ServerConnectedToClient && role.serverMainRole)
                     {
-                        ipBox.Text = server.clientIp;
-                        portBox.Text = serverPortBox.Text;
+                        clientIp = server.clientIp;
+                        clientPort = Convert.ToInt32(serverPortBox.Text);
                         startConnections();
                         break;
                     }
