@@ -603,39 +603,39 @@ namespace BSK_1_MD
 
         public byte[] EncryptData(byte[] data)
         {
-            //byte[] encryptedData;
-            //using (MemoryStream memoryStream = new MemoryStream())
-            //{
-            //    using(CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
-            //    {
-            //        cryptoStream.Write(data, 0, data.Length);
-            //    }
-            //    encryptedData = memoryStream.ToArray();
-            //}
-            //return encryptedData;
-            using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+            byte[] encryptedData;
+            using (MemoryStream memoryStream = new MemoryStream())
             {
-                return PerformCryptography(data, encryptor);
+                using(CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                {
+                    cryptoStream.Write(data, 0, data.Length);
+                }
+                encryptedData = memoryStream.ToArray();
             }
+            return encryptedData;
+            //using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+            //{
+            //    //return PerformCryptography(data, encryptor);
+            //}
         }
 
         public byte[] DecryptData(byte[] data)
         {
-            //byte[] decryptedBytes;
-            //using (MemoryStream memoryStream = new MemoryStream(data))
-            //{
-            //    using (CryptoStream cryptoStream =
-            //       new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
-            //    {
-            //        decryptedBytes = new byte[data.Length];
-            //        cryptoStream.Read(decryptedBytes, 0, decryptedBytes.Length);
-            //    }
-            //}
-            //return decryptedBytes;
-            using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+            byte[] decryptedBytes;
+            using (MemoryStream memoryStream = new MemoryStream(data))
             {
-                return PerformCryptography(data, decryptor);
+                using (CryptoStream cryptoStream =
+                   new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                {
+                    decryptedBytes = new byte[data.Length];
+                    cryptoStream.Read(decryptedBytes, 0, decryptedBytes.Length);
+                }
             }
+            return decryptedBytes;
+            //using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+            //{
+            //    //return PerformCryptography(data, decryptor);
+            //}
         }
     }
 }
