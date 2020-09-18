@@ -313,10 +313,10 @@ namespace BSK_1_MD
         private void SaveRsaEncryptedKeys()
         {
             string rsaPubPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            rsaPubPath += "/rsa"+ DateTime.Now.ToString() +"/.rsaPub/rsaPub";
+            rsaPubPath += "/rsa/.rsaPub/rsaPub";
             rsaPubPath = NormalizePath(rsaPubPath);
             string rsaPrivPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            rsaPrivPath += "/rsa" + DateTime.Now.ToString() + "/.rsaPriv/rsaPriv";
+            rsaPrivPath += "/rsa/.rsaPriv/rsaPriv";
             rsaPrivPath = NormalizePath(rsaPrivPath);
 
             Directory.CreateDirectory(Path.GetDirectoryName(rsaPubPath));
@@ -344,27 +344,43 @@ namespace BSK_1_MD
 
         public string SavePublicRsaKey()
         {
-            string path = @"c:\temp\public_key.rsa";
+            string path = @"c:\temp\";
+            string fileName = path + "public_key.rsa";
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    Console.WriteLine("Dir exist");
+                }
+                else
+                {
+                    Directory.CreateDirectory(path);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             // This text is added only once to the file.
-            if (!File.Exists(path))
+            if (!File.Exists(fileName))
             {
                 if (my_keys.PubKey_s.Length > 0)
                 {
-                    File.WriteAllText(path, my_keys.PubKey_s);
-                    return path;
+                    File.WriteAllText(fileName, my_keys.PubKey_s);
+                    return fileName;
                 }
             }
             else
             {
-                File.Delete(path);
+                File.Delete(fileName);
                 if (my_keys.PubKey_s.Length > 0)
                 {
-                    File.WriteAllText(path, my_keys.PubKey_s);
-                    return path;
+                    File.WriteAllText(fileName, my_keys.PubKey_s);
+                    return fileName;
                 }
             }
-            return path;
+            return fileName;
 
         }
 
