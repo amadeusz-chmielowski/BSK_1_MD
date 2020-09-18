@@ -36,6 +36,8 @@ namespace BSK_1_MD
         private string clientIp = null;
         private Int32 clientPort = 0;
         private bool fullyConnected = false;
+        private bool syncComplete = false;
+        private bool useCiphering = false;
         private struct Role
         {
             public bool serverMainRole;
@@ -603,7 +605,9 @@ namespace BSK_1_MD
                         tcpClient.cipher.UpdateAes();
                         tcpServer.cipher.UpdateAes();
                         // ustaw szyfrowanie wiadomosci
+                        useCiphering = true;
                         // odblokuj przyciski do wysylania wiadomosci
+                        syncComplete = true;
                         EnableDisableSendButtons(buttonStatus: true);
                         break;
 
@@ -640,7 +644,9 @@ namespace BSK_1_MD
                         // wyslij klucz sesyjny
                         tcpClient.SendEncryptedSessionKey(encrypted_key);
                         // ustaw szyfrowanie wiadomosci
-                        // odblokuj przyciski do wysylania wiadomosci 
+                        useCiphering = true;
+                        // odblokuj przyciski do wysylania wiadomosci
+                        syncComplete = true;
                         EnableDisableSendButtons(buttonStatus: true);
                         break;
                     }

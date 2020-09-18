@@ -585,5 +585,33 @@ namespace BSK_1_MD
         {
             SetAesSettings();
         }
+
+        private byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
+        {
+            using (var ms = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+            {
+                cryptoStream.Write(data, 0, data.Length);
+                cryptoStream.FlushFinalBlock();
+
+                return ms.ToArray();
+            }
+        }
+
+        public byte[] EncryptData(byte[] data)
+        {
+            using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+            {
+                return PerformCryptography(data, encryptor);
+            }
+        }
+
+        public byte[] DecryptData(byte[] data)
+        {
+            using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+            {
+                return PerformCryptography(data, decryptor);
+            }
+        }
     }
 }

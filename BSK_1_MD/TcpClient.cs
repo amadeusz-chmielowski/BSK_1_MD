@@ -31,6 +31,7 @@ namespace BSK_1_MD
         private bool connectionAquired = false;
         private int progressValue = 0;
         private bool fileSent = false;
+        private bool useEncryption = false;
 
 
         public bool ConnectionEstablished { get => connectionAquired; }
@@ -238,7 +239,18 @@ namespace BSK_1_MD
                     {
                         logger.addToLogger(string.Format(message, ex.Message));
                     }
-                    int bytesSent = socket.Send(bytes, SocketFlags.None);
+                    int bytesSent = 0;
+                    if (useEncryption)
+                    {
+                        byte[] encrypted_buffor0 = cipher.EncryptData(bytes);
+                        int len1 = encrypted_buffor0.Length;
+                        int len2 = bytes.Length;
+                        bytesSent = socket.Send(encrypted_buffor0, SocketFlags.None);
+                    }
+                    else
+                    {
+                        bytesSent = socket.Send(bytes, SocketFlags.None);
+                    }
                     logger.addToLogger(string.Format(message, "Sent " + bytesSent + " bytes."));
                     break;
                 case "Key":
@@ -257,8 +269,20 @@ namespace BSK_1_MD
                     var preBuffer = ConvertToBytes(string.Format(preText, size));
                     byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(preBuffer, preBufferCorrectSize, preBuffer.Length);
-                    int bytesSend1 = socket.Send(preBufferCorrectSize, SocketFlags.None);
-                    int bytesSent2 = socket.Send(bytes, SocketFlags.None);
+                    int bytesSend1 = 0;
+                    int bytesSent2 = 0;
+                    if (useEncryption)
+                    {
+                        byte[] encrypted_buffor1 = cipher.EncryptData(preBufferCorrectSize);
+                        byte[] encrypted_buffor2 = cipher.EncryptData(bytes);
+                        bytesSend1 = socket.Send(encrypted_buffor1, SocketFlags.None);
+                        bytesSent2 = socket.Send(encrypted_buffor2, SocketFlags.None);
+                    }
+                    else
+                    {
+                        bytesSend1 = socket.Send(preBufferCorrectSize, SocketFlags.None);
+                        bytesSent2 = socket.Send(bytes, SocketFlags.None);
+                    }
                     logger.addToLogger(string.Format(message, "Sent " + (bytesSend1 + bytesSent2) + " bytes."));
                     break;
                 case "file":
@@ -283,21 +307,50 @@ namespace BSK_1_MD
                     var postBuffer = ConvertToBytes(string.Format(postText, Path.GetFileName(file)));
                     byte[] postBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
                     Array.Copy(postBuffer, postBufferCorrectSize, postBuffer.Length);
-                    socket.Send(preBufferCorrectSize1);
+                    if (useEncryption)
+                    {
+                        byte[] encryptedbuffor3 = cipher.EncryptData(preBufferCorrectSize1);
+                        socket.Send(encryptedbuffor3);
+                    }
+                    else
+                    {
+                        socket.Send(preBufferCorrectSize1);
+                    }
                     Thread.Sleep(10);
                     while (fileToRead.SizeToRead > 0)
                     {
                         byte[] bytesToSend = fileToRead.ReadBytes();
-                        socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
+                        if (useEncryption)
+                        {
+                            byte[] encryptedBuffor = cipher.EncryptData(bytesToSend);
+                            socket.Send(buffer: encryptedBuffor, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
+                        }
+                        else
+                        {
+                            socket.Send(buffer: bytesToSend, size: Convert.ToInt32(ConfigurationManager.AppSettings.Get("FrameSize")), socketFlags: SocketFlags.None);
+                        }
                         progressValue = Convert.ToInt32((size - fileToRead.SizeToRead) / Convert.ToDouble(size) * Convert.ToDouble(ConfigurationManager.AppSettings.Get("ProgressBarMax")));
                     }
                     Thread.Sleep(20);
-                    socket.Send(postBufferCorrectSize);
+                    if (useEncryption)
+                    {
+                        byte[] encryptedBuffer5 = cipher.EncryptData(postBufferCorrectSize);
+                        socket.Send(encryptedBuffer5);
+                    }
+                    else
+                    {
+                        socket.Send(postBufferCorrectSize);
+                    }
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
                     fileToRead.StopReading();
                     break;
             }
+        }
+
+        public void UseEncryption(bool yesNo)
+        {
+            useEncryption = yesNo;
         }
     }
 

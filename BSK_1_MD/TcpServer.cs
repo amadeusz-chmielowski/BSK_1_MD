@@ -26,6 +26,7 @@ namespace BSK_1_MD
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
+        private bool useEncryption = false;
         public struct RecivedKey
         {
             public byte[] keyToRecive;
@@ -242,7 +243,7 @@ namespace BSK_1_MD
             }
             else if (recivingKey)
             {
-                if(recivedKey.keySize <= Convert.ToUInt32(bytesRecivedSize))
+                if (recivedKey.keySize <= Convert.ToUInt32(bytesRecivedSize))
                 {
                     Array.Copy(bytes, recivedKey.keyToRecive, bytesRecivedSize);
                     recivedKey.keyRecived = true;
@@ -291,7 +292,15 @@ namespace BSK_1_MD
                 ConnectionResetValue = 0;
                 int bytesRecivedSize;
                 bytesRecivedSize = listener.Receive(bytes, socketFlags: SocketFlags.None);
-                Reciver(bytes, bytesRecivedSize);
+                if (useEncryption)
+                {
+                    byte[] decryptedBytes = cipher.DecryptData(bytes);
+                    Reciver(decryptedBytes, bytesRecivedSize);
+                }
+                else
+                {
+                    Reciver(bytes, bytesRecivedSize);
+                }
             }
 
         }
@@ -314,7 +323,7 @@ namespace BSK_1_MD
         public string GenerateRsaKeys()
         {
             string returnPath = "";
-            if(cipher != null)
+            if (cipher != null)
             {
                 cipher.GenerateAndSaveEncryptedRsaKeys();
                 returnPath = cipher.SavePublicRsaKey();
@@ -337,12 +346,17 @@ namespace BSK_1_MD
                     return true;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 return false;
             }
 
+        }
+
+        public void UseEncryption(bool yesNo)
+        {
+            useEncryption = yesNo;
         }
     }
 }
