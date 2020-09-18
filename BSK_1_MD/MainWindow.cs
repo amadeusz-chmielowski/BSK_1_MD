@@ -138,7 +138,7 @@ namespace BSK_1_MD
                     {
                         tcpClient = new TcpClient(clientIp, clientPort, ref logger);
                     }
-                    tcpClient.Updatevariables(ip, port);
+                    tcpClient.Updatevariables(clientIp, clientPort);
                     tcpClient.Connect();
                     if (!tcpClient.ConnectionEstablished)
                     {
@@ -155,8 +155,8 @@ namespace BSK_1_MD
                 }
                 else
                 {
-                    tcpClient = new TcpClient(ip, port, ref logger);
-                    tcpClient.Updatevariables(ip, port);
+                    tcpClient = new TcpClient(clientIp, clientPort, ref logger);
+                    tcpClient.Updatevariables(clientIp, clientPort);
                     tcpClient.Connect();
                     if (!tcpClient.ConnectionEstablished)
                     {
