@@ -434,7 +434,7 @@ namespace BSK_1_MD
             //    long key = System.DateTime.Now.ToBinary();
             //    aesSettings.SessionKey = hash.ComputeHash(BitConverter.GetBytes(key));
             //}
-            byte[] random = new Byte[256];
+            byte[] random = new Byte[32];
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             rng.GetBytes(random);
             return random;
