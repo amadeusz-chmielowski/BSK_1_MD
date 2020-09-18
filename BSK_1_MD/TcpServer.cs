@@ -205,7 +205,7 @@ namespace BSK_1_MD
             }
             else if (preTextRegex2.IsMatch(message))
             {
-                var match = preTextRegex.Match(message);
+                var match = preTextRegex2.Match(message);
                 var keySize = match.Groups[1].Value;
                 recivedKey = new RecivedKey();
                 recivedKey.keySize = Convert.ToUInt32(keySize);
