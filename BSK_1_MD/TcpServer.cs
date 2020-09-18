@@ -20,11 +20,20 @@ namespace BSK_1_MD
     {
         private string message = "[Server] {0}";
         Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
+        Regex preTextRegex2 = new Regex(".*Session key, size (.*) being send" + Environment.NewLine + ".*");
         private Int32 port;
         private Logger logger;
         private Socket listener;
         private IPEndPoint localEndPoint;
         private FileToSave fileToSave = null;
+        public struct RecivedKey
+        {
+            public byte[] keyToRecive;
+            public UInt32 keySize;
+            public bool keyRecived;
+
+        }
+        public RecivedKey recivedKey;
         public Cipher cipher = null;
         public string clientIp;
         public string NotSecurePasswd { get; set; }
@@ -35,10 +44,12 @@ namespace BSK_1_MD
         private enum messageType
         {
             Text,
-            File
+            File,
+            Key
         };
 
         private bool savingFile = false;
+        private bool recivingKey = false;
 
 
         IPAddress ip;
@@ -192,6 +203,16 @@ namespace BSK_1_MD
                 fileToSave.OpenFile();
                 return messageType.File;
             }
+            else if (preTextRegex2.IsMatch(message))
+            {
+                var match = preTextRegex.Match(message);
+                var keySize = match.Groups[1].Value;
+                recivedKey = new RecivedKey();
+                recivedKey.keySize = Convert.ToUInt32(keySize);
+                recivedKey.keyToRecive = new byte[recivedKey.keySize];
+                recivedKey.keyRecived = false;
+                return messageType.Key;
+            }
             else
             {
                 return messageType.Text;
@@ -219,6 +240,15 @@ namespace BSK_1_MD
                 }
 
             }
+            else if (recivingKey)
+            {
+                if(recivedKey.keySize <= Convert.ToUInt32(bytesRecivedSize))
+                {
+                    Array.Copy(bytes, recivedKey.keyToRecive, bytesRecivedSize);
+                    recivedKey.keyRecived = true;
+                    recivingKey = false;
+                }
+            }
             else
             {
                 switch (TextOrFileDetermination(bytes, ref fileToSave))
@@ -234,6 +264,13 @@ namespace BSK_1_MD
                             var text = Encoding.UTF8.GetString(bytes);
                             logger.addToLogger(string.Format(message, "Message: " + text));
                             savingFile = true;
+                            break;
+                        }
+                    case messageType.Key:
+                        {
+                            var text = Encoding.UTF8.GetString(bytes);
+                            logger.addToLogger(string.Format(message, "Message: " + text));
+                            recivingKey = true;
                             break;
                         }
                 }

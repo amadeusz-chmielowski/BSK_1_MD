@@ -574,22 +574,34 @@ namespace BSK_1_MD
                         FileInfo fileInfo = new FileInfo(pathToPublicRsa);
                         tcpClient.SendFile(pathToPublicRsa, fileInfo.Length);
                         //usuń plik public_key.rsa niezaszyfrowany
-                        //while (true)
-                        //{
-                        //    if (!IsFileLocked(fileInfo))
-                        //    {
-                        //        break;
-                        //    }
-                        //    else
-                        //    {
-                        //        Thread.Sleep(10);
-                        //    }
-                        //}
-                        string file = tcpServer.cipher.ReadFileIntoString(pathToPublicRsa);
-                        tcpServer.cipher.ImportPublicKey(file);
+                        while (true)
+                        {
+                            if (!IsFileLocked(fileInfo))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                Thread.Sleep(10);
+                            }
+                        }
                         bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);
                         // odbierz zaszyfrowany klucz sesyjny
-                        // odszyfruj klucz przy pomocy private_key.rsa 
+                        while (true)
+                        {
+                            if (tcpServer.recivedKey.keyRecived)
+                            {
+
+                                break;
+                            }
+                        }
+                        byte[] encrypted_key = tcpServer.recivedKey.keyToRecive;
+                        // odszyfruj klucz przy pomocy private_key.rsa
+                        byte[] key = tcpServer.cipher.DecryptSessionKeyWithRsaPrivateKey(encrypted_key);
+                        tcpServer.cipher.SetSessionKey(key);
+                        tcpClient.cipher.SetSessionKey(key);
+                        tcpClient.cipher.UpdateAes();
+                        tcpServer.cipher.UpdateAes();
                         // ustaw szyfrowanie wiadomosci
                         // odblokuj przyciski do wysylania wiadomosci
                         EnableDisableSendButtons(buttonStatus: true);
@@ -601,15 +613,32 @@ namespace BSK_1_MD
                         //zablokuj przyciski na chwile do wysylania
                         EnableDisableSendButtons(buttonStatus: false);
                         //odbierz plik public_key.rsa
+                        string pathToPublicRsa = this.pathToSave + "\\public_key.rsa";
                         while (true)
                         {
                             //check if file recived then break;
-                            int a = 0;
+                            if (File.Exists(pathToPublicRsa))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                Thread.Sleep(10);
+                            }
                         }
                         //wygeneruj klucz sesyjny
+                        byte[] key = tcpClient.cipher.GenerateSessionKey();
+                        tcpServer.cipher.SetSessionKey(key);
+                        tcpServer.cipher.UpdateAes();
+                        tcpClient.cipher.UpdateAes();
                         //zaszyfruj klucz sesyjny za pomoca public_key.rsa serwera
+                        string file = tcpClient.cipher.ReadFileIntoString(pathToPublicRsa);
+                        tcpClient.cipher.ImportPublicKey(file);
+                        byte[] encrypted_key = tcpClient.cipher.EncryptSessionKey(key);
                         //usuń plik public_key.rsa niezaszyfrowany
+                        bool fileDeleted = tcpServer.DeletePublicRsaKey(pathToPublicRsa);
                         // wyslij klucz sesyjny
+                        tcpClient.SendEncryptedSessionKey(encrypted_key);
                         // ustaw szyfrowanie wiadomosci
                         // odblokuj przyciski do wysylania wiadomosci 
                         EnableDisableSendButtons(buttonStatus: true);

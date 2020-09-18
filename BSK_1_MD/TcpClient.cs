@@ -22,7 +22,7 @@ namespace BSK_1_MD
         private string ip;
         private Int32 port;
         private Logger logger;
-        private Cipher cipher;
+        public Cipher cipher;
         public CipherMode cipherMode { get; set; }
 
         private static ManualResetEvent manualResetEvent = new ManualResetEvent(false);
@@ -172,7 +172,8 @@ namespace BSK_1_MD
 
 
                 Regex preTextRegex = new Regex(".*File (.*), size (.*) being send" + Environment.NewLine + ".*");
-                if (preTextRegex.IsMatch(message_))
+                Regex preTextRegex2 = new Regex(".*Session key, size (.*) being send" + Environment.NewLine + ".*");
+                if (preTextRegex.IsMatch(message_) || preTextRegex2.IsMatch(message))
                 {
                     throw new System.ArgumentException("Text contains forbidden message " + preTextRegex.ToString());
                 }
@@ -190,6 +191,13 @@ namespace BSK_1_MD
         {
             logger.addToLogger(string.Format(message, "Sending file:" + filePath));
             Send(null, "file", file: filePath, size: size);
+        }
+
+        public void SendEncryptedSessionKey(byte[] key)
+        {
+            logger.addToLogger(string.Format(message, "Sending encrypted session key"));
+            Send(key, "Key", size: key.LongLength);
+
         }
 
         private void Send(byte[] bytes = null, string key_ = null, string file = null, long size = 0)
@@ -233,6 +241,26 @@ namespace BSK_1_MD
                     int bytesSent = socket.Send(bytes, SocketFlags.None);
                     logger.addToLogger(string.Format(message, "Sent " + bytesSent + " bytes."));
                     break;
+                case "Key":
+                    try
+                    {
+                        if (bytes == null)
+                        {
+                            throw new System.ArgumentNullException("Message empty");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.addToLogger(string.Format(message, ex.Message));
+                    }
+                    string preText = "Session key, size {0} being send" + Environment.NewLine;
+                    var preBuffer = ConvertToBytes(string.Format(preText, size));
+                    byte[] preBufferCorrectSize = new byte[Convert.ToUInt32(ConfigurationManager.AppSettings.Get("FrameSize"))];
+                    Array.Copy(preBuffer, preBufferCorrectSize, preBuffer.Length);
+                    int bytesSend1 = socket.Send(preBufferCorrectSize, SocketFlags.None);
+                    int bytesSent2 = socket.Send(bytes, SocketFlags.None);
+                    logger.addToLogger(string.Format(message, "Sent " + (bytesSend1 + bytesSent2) + " bytes."));
+                    break;
                 case "file":
                     try
                     {
@@ -267,6 +295,7 @@ namespace BSK_1_MD
                     socket.Send(postBufferCorrectSize);
                     logger.addToLogger(string.Format(message, "Sent " + file));
                     fileSent = true;
+                    fileToRead.StopReading();
                     break;
             }
         }
