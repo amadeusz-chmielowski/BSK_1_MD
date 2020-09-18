@@ -60,7 +60,7 @@ namespace BSK_1_MD
             progressBar1.Maximum = Convert.ToInt32(ConfigurationManager.AppSettings.Get("ProgressBarMax"));
             serverStartButton.Enabled = false;
             fullyConnectedCheckerWorker.RunWorkerAsync();
-            
+
             role.clientMainRole = false;
             role.serverMainRole = false;
         }
@@ -122,7 +122,7 @@ namespace BSK_1_MD
         private void startConnections(bool startNewConnection = false)
         {
             string ip = ipBox.Text;
-            if(clientIp == null)
+            if (clientIp == null)
             {
                 clientIp = ip;
             }
@@ -130,7 +130,7 @@ namespace BSK_1_MD
             {
                 ChangeVisibilityConnectButton(false);
                 Int32 port = Convert.ToInt32(portBox.Text);
-                if(clientPort == 0)
+                if (clientPort == 0)
                 {
                     clientPort = port;
                 }
@@ -146,7 +146,7 @@ namespace BSK_1_MD
                     {
                         ChangeVisibilityConnectButton(true);
                     }
-                    else 
+                    else
                     {
                         if (role.clientMainRole)
                         {
@@ -266,24 +266,21 @@ namespace BSK_1_MD
                 server.StartServer();
                 while (true)
                 {
-                    if (server.ServerConnectedToClient && role.serverMainRole)
+                    if (server.ServerConnectedToClient)
                     {
-                        clientIp = server.clientIp;
-                        clientPort = Convert.ToInt32(serverPortBox.Text);
-                        startConnections();
-                        break;
-                    }
-                    else
-                    {
-                        Thread.Sleep(10);
-                    }
-                }
-                while (true)
-                {
-                    if (server.ServerConnectedToClient && role.clientMainRole)
-                    {
-                        fullyConnected = true;
-                        break;
+                        if (role.serverMainRole)
+                        {
+                            clientIp = server.clientIp;
+                            clientPort = Convert.ToInt32(serverPortBox.Text);
+                            startConnections();
+                            break;
+                        }
+                        if (role.clientMainRole)
+                        {
+                            fullyConnected = true;
+                            break;
+                        }
+
                     }
                     else
                     {
