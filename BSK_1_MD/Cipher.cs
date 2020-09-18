@@ -91,6 +91,7 @@ namespace BSK_1_MD
         {
             this.logger = logger;
             aes = Aes.Create();
+            aes.KeySize = 256;
             aesSettings = new AesSettings();
             DefaultAesSettings();
             my_keys = new RSA();
@@ -291,11 +292,10 @@ namespace BSK_1_MD
         {
             aesSettings.BlockSize = 128;
             aesSettings.FeedBackSize = 128;
-            aesSettings.KeySize = 256;
             aesSettings.CipherMode = CipherMode.ECB;
             aesSettings.PaddingMode = PaddingMode.None;
+            aesSettings.KeySize = 256;
             aesSettings.IV = IV;
-            aes.GenerateKey();
             aesSettings.SessionKey = aes.Key;
             SetAesSettings();
         }
@@ -442,7 +442,6 @@ namespace BSK_1_MD
         public void SetSessionKey(byte[] key)
         {
             aesSettings.SessionKey = key;
-            aesSettings.KeySize = key.Length;
         }
 
         public byte[] EncryptSessionKey(byte[] key)
@@ -542,7 +541,6 @@ namespace BSK_1_MD
             aes.FeedbackSize = aesSettings.FeedBackSize;
             aes.IV = aesSettings.IV;
             aes.Key = aesSettings.SessionKey;
-            aes.KeySize = aesSettings.KeySize;
             aes.Mode = aesSettings.CipherMode;
             aes.Padding = aesSettings.PaddingMode;
             logger.addToLogger("Session key: " + Encoding.UTF8.GetString(aes.Key));
