@@ -429,11 +429,13 @@ namespace BSK_1_MD
 
         public byte[] GenerateSessionKey()
         {
-            using (SHA256 hash = SHA256.Create())
-            {
-                long key = System.DateTime.Now.ToBinary();
-                aesSettings.SessionKey = hash.ComputeHash(BitConverter.GetBytes(key));
-            }
+            //using (SHA256 hash = SHA256.Create())
+            //{
+            //    long key = System.DateTime.Now.ToBinary();
+            //    aesSettings.SessionKey = hash.ComputeHash(BitConverter.GetBytes(key));
+            //}
+            aes.GenerateKey();
+            aesSettings.SessionKey = aes.Key;
             return aesSettings.SessionKey;
         }
 
