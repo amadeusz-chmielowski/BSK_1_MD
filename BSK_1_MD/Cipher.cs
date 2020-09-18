@@ -295,6 +295,7 @@ namespace BSK_1_MD
             aesSettings.CipherMode = CipherMode.ECB;
             aesSettings.PaddingMode = PaddingMode.None;
             aesSettings.IV = IV;
+            aes.GenerateKey();
             aesSettings.SessionKey = aes.Key;
             SetAesSettings();
         }
@@ -451,7 +452,7 @@ namespace BSK_1_MD
                 encryptedData = RSAEncrypt(key, other_keys.PubKey, false);
                 return encryptedData;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return null;
@@ -466,7 +467,7 @@ namespace BSK_1_MD
                 decryptedData = RSADecrypt(encryptedKey, my_keys.PrvKey, false);
                 return decryptedData;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return null;
@@ -606,7 +607,7 @@ namespace BSK_1_MD
             byte[] encryptedData;
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                using(CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                using (CryptoStream cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
                 {
                     cryptoStream.Write(data, 0, data.Length);
                 }
@@ -625,12 +626,13 @@ namespace BSK_1_MD
             using (MemoryStream memoryStream = new MemoryStream(data))
             {
                 using (CryptoStream cryptoStream =
-                   new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                   new CryptoStream(memoryStream, aes.CreateDecryptor(aes.Key, aes.IV), CryptoStreamMode.Read))
                 {
                     decryptedBytes = new byte[data.Length];
                     cryptoStream.Read(decryptedBytes, 0, decryptedBytes.Length);
                 }
             }
+
             return decryptedBytes;
             //using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
             //{
