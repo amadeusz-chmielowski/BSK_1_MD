@@ -565,6 +565,7 @@ namespace BSK_1_MD
             {
                 if (fullyConnected)
                 {
+                    Thread.Sleep(5000);
                     //fazy szyfrowania i wymiany public key
                     if (role.serverMainRole)
                     {
