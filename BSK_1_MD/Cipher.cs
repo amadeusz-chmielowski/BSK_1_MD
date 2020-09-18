@@ -434,9 +434,10 @@ namespace BSK_1_MD
             //    long key = System.DateTime.Now.ToBinary();
             //    aesSettings.SessionKey = hash.ComputeHash(BitConverter.GetBytes(key));
             //}
-            aes.GenerateKey();
-            aesSettings.SessionKey = aes.Key;
-            return aesSettings.SessionKey;
+            byte[] random = new Byte[256];
+            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            rng.GetBytes(random);
+            return random;
         }
 
         public void SetSessionKey(byte[] key)
