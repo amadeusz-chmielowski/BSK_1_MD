@@ -144,10 +144,13 @@ namespace BSK_1_MD
                     {
                         ChangeVisibilityConnectButton(true);
                     }
-                    else if(role.clientMainRole)
+                    else 
                     {
-                        serverStartButton.Enabled = false;
-                        StartServer();
+                        if (role.clientMainRole)
+                        {
+                            serverStartButton.Enabled = false;
+                            StartServer();
+                        }
                     }
                 }
                 else
@@ -441,9 +444,8 @@ namespace BSK_1_MD
         {
             this.role.clientMainRole = true;
             this.role.serverMainRole = false;
-            startConnections();
             serverPortBox.Text = portBox.Text;
-            StartServer();
+            startConnections();
         }
 
         private void sendFileButton_Click(object sender, EventArgs e)
